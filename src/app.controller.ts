@@ -1,7 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller()
+@ApiTags('default')
+@Controller({ path: '', version: '1' })
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
