@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { rateLimitoptions } from './common/config';
 import { HttpLoggerMiddleware } from './middleware/logging/logging.middleware';
+import { DrizzleModule } from './modules/drizzle/drizzle.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { HttpLoggerMiddleware } from './middleware/logging/logging.middleware';
       isGlobal: true,
     }),
     ThrottlerModule.forRoot([rateLimitoptions]),
+    DrizzleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
