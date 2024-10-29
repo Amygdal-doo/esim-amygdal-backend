@@ -1,6 +1,6 @@
 {
-  "id": "861696b4-dc06-4ac3-b69b-3d2e0ec633f0",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "64da8cf4-25d1-4204-9750-edd541d21ac2",
+  "prevId": "861696b4-dc06-4ac3-b69b-3d2e0ec633f0",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -118,16 +118,14 @@
           "type": "role",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'USER'"
+          "notNull": true
         },
         "loginType": {
           "name": "loginType",
           "type": "loginType",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'CREDENTIALS'"
+          "notNull": true
         },
         "googleId": {
           "name": "googleId",
