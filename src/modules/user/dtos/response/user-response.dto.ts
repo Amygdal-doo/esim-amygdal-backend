@@ -1,5 +1,5 @@
+import { LoginType, Role } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
-import { roleEnum, loginTypeEnum } from 'src/modules/user/schemas/schema';
 
 export class UserResponseDto {
   @Expose()
@@ -18,7 +18,7 @@ export class UserResponseDto {
   lastName: string;
 
   @Expose()
-  role: typeof roleEnum;
+  role: Role;
 
   // @Expose()
   // profilePicture: Prisma.JsonValue;
@@ -27,7 +27,7 @@ export class UserResponseDto {
   // phoneNumber: string | null;
 
   @Expose()
-  loginType: typeof loginTypeEnum;
+  loginType: LoginType;
 
   @Exclude()
   googleId: string;

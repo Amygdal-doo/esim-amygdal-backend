@@ -1,5 +1,4 @@
-import { LoginType } from 'src/common/enums/loginType.enum';
-import { Role } from 'src/common/enums/role.enum';
+import { LoginType, Role } from '@prisma/client';
 
 export class LoggedUserInfoDto {
   id: string;

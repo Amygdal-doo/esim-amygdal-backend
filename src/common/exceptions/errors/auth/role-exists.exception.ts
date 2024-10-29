@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { Role } from 'src/common/enums/role.enum';
+import { Role } from '@prisma/client';
 
 export class ExistingRoleException extends HttpException {
   constructor(role?: Role) {

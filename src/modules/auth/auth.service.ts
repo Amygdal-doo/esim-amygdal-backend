@@ -12,19 +12,16 @@ import {
   hashPassword,
   verifyPassword,
 } from 'src/common/helpers/hash-password.helper';
-import { LoginType } from 'src/common/enums/loginType.enum';
 import { ExistingUserException } from 'src/common/exceptions/errors/user/existing-user.exception';
 import { ExistingUsernameException } from 'src/common/exceptions/errors/user/existing-username.exception';
 import { SocialUserExistException } from 'src/common/exceptions/errors/auth/social-login.exception';
-import * as userSchema from '../user/schemas/schema';
-import { Role } from 'src/common/enums/role.enum';
-import { LocalRegisterBodyDto } from './dtos/local-register-body.dto';
 import { WrongCredidentialsException } from 'src/common/exceptions/errors/auth/wrong-credidentials.exception';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { ChangingPasswordException } from 'src/common/exceptions/errors/auth/changing-password.exception';
 import { UserNotFoundException } from 'src/common/exceptions/errors/user/user-no-exist.exception';
 import { PasswordSocialException } from 'src/common/exceptions/errors/auth/password-social-exception';
 import { PasswordException } from 'src/common/exceptions/errors/auth/password-exception';
+import { LoginType, Prisma, Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -53,29 +50,17 @@ export class AuthService {
     };
   }
 
-  async register(localRegisterBodyDto: LocalRegisterBodyDto) {
-    const emailExist = await this.userService.findByEmail(
-      localRegisterBodyDto.email,
-    );
+  async register(data: Prisma.UserCreateInput) {
+    const emailExist = await this.userService.findByEmail(data.email);
     if (emailExist) throw new ExistingUserException();
-    const usernameExist = await this.userService.findByUsername(
-      localRegisterBodyDto.username,
-    );
+    const usernameExist = await this.userService.findByUsername(data.username);
     if (usernameExist) throw new ExistingUsernameException();
 
-    const hashedPw = await hashPassword(localRegisterBodyDto.password);
+    const hashedPw = await hashPassword(data.password);
 
-    const data: typeof userSchema.userTable.$inferInsert & {
-      password: string;
-    } = {
-      password: hashedPw,
-      email: localRegisterBodyDto.email,
-      username: localRegisterBodyDto.username,
-      firstName: localRegisterBodyDto.firstName,
-      lastName: localRegisterBodyDto.lastName,
-      loginType: LoginType.CREDENTIALS,
-      role: Role.USER,
-    };
+    data.password = hashedPw;
+    data.loginType = LoginType.CREDENTIALS;
+
     return this.userService.create(data);
   }
 
@@ -141,9 +126,7 @@ export class AuthService {
     if (user) throw new SocialUserExistException('google');
 
     try {
-      const registerUser: typeof userSchema.userTable.$inferInsert & {
-        googleId: string;
-      } = {
+      const registerUser: Prisma.UserCreateInput = {
         // dto or interfaace
         firstName: data.user.firstName,
         lastName: data.user.lastName,
@@ -211,7 +194,9 @@ export class AuthService {
 
     const hashedPw = await hashPassword(newPassword);
 
-    await this.userService.updateUserById(id, { password: hashedPw });
+    await this.userService.updateUserById(id, {
+      password: hashedPw,
+    });
 
     return {
       message: 'Password changed successfully.',

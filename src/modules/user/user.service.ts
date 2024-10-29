@@ -1,86 +1,71 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { DRIZZLE_CLIENT } from 'src/db/constants/drizzle-client.constant';
-// import { DrizzleDB } from 'src/db/types/drizzle';
-import * as schema from './schemas/schema';
-import { eq } from 'drizzle-orm';
+import { Injectable } from '@nestjs/common';
 import { UserNotFoundException } from 'src/common/exceptions/errors/user/user-no-exist.exception';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { Prisma, Role } from '@prisma/client';
+import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @Inject(DRIZZLE_CLIENT) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(user: typeof schema.userTable.$inferInsert) {
-    const result = await this.db
-      .insert(schema.userTable)
-      .values(user)
-      .returning();
-    return result[0];
-    // return this.db.query.userTable.insert(user).returning();
+  async create(data: Prisma.UserCreateInput) {
+    if (!data.role) data.role = Role.USER;
+    return this.databaseService.user.create({ data });
   }
 
   async findByEmail(email: string) {
-    const result = await this.db
-      .select()
-      .from(schema.userTable)
-      .where(eq(schema.userTable.email, email))
-      .limit(1);
-
-    return result[0];
+    const result = await this.databaseService.user.findUnique({
+      where: { email },
+    });
+    return result;
   }
 
   async findById(id: string) {
-    const result = await this.db
-      .select()
-      .from(schema.userTable)
-      .where(eq(schema.userTable.id, id))
-      .limit(1);
-    return result[0];
+    const result = await this.databaseService.user.findUnique({
+      where: { id },
+    });
+    return result;
   }
 
   async findByUsername(username: string) {
-    const result = await this.db
-      .select()
-      .from(schema.userTable)
-      .where(eq(schema.userTable.username, username))
-      .limit(1);
-    return result[0];
+    const result = await this.databaseService.user.findUnique({
+      where: { username },
+    });
+    return result;
   }
 
   async findByGoogleId(googleId: string) {
-    const result = await this.db
-      .select()
-      .from(schema.userTable)
-      .where(eq(schema.userTable.googleId, googleId))
-      .limit(1);
-    return result[0];
+    const result = await this.databaseService.user.findUnique({
+      where: { googleId },
+    });
+    return result;
   }
 
   async findRefreshToken(userId: string) {
-    const result = await this.db
-      .select()
-      .from(schema.refreshTokenTable)
-      .where(eq(schema.refreshTokenTable.userId, userId))
-      .limit(1);
-    return result[0];
-  }
-
-  async updateToken(userId: string, refresTokenStr: string) {
-    const updatedToken = await this.db
-      .update(schema.refreshTokenTable)
-      .set({ token: refresTokenStr })
-      .where(eq(schema.refreshTokenTable.userId, userId))
-      .returning({ userId: schema.refreshTokenTable.userId });
-    return updatedToken[0];
+    const result = await this.databaseService.refreshToken.findUnique({
+      where: { userId },
+    });
+    return result;
   }
 
   async createToken(userId: string, refresTokenStr: string | null) {
-    return this.db
-      .insert(schema.refreshTokenTable)
-      .values({ token: refresTokenStr, userId })
-      .returning({ userId: schema.refreshTokenTable.userId });
+    const result = await this.databaseService.refreshToken.create({
+      data: {
+        userId,
+        token: refresTokenStr,
+      },
+    });
+    result;
+  }
+
+  async updateToken(userId: string, refresTokenStr: string | null) {
+    const result = await this.databaseService.refreshToken.update({
+      where: { userId },
+      data: {
+        userId,
+        token: refresTokenStr,
+      },
+    });
+    result;
   }
 
   async updateRefreshToken(userId: string, refresTokenStr: string | null) {
@@ -127,20 +112,19 @@ export class UserService {
     return user;
   }
 
-  async getUserAndRefreshtokenByUserId(id: string) {
-    const user = await this.db.query.userTable.findFirst({
-      where: eq(schema.userTable.id, id),
-      with: { resfreshToken: true },
-    });
-    return user;
-  }
+  // async getUserAndRefreshtokenByUserId(id: string) {
+  //   const result = await this.db.query.userTable.findFirst({
+  //     where: eq(schema.userTable.id, id),
+  //     with: { resfreshToken: true },
+  //   });
+  //   return result;
+  // }
 
-  async updateUserPassword(id: string, hashedPassword: string) {
-    const result = await this.db
-      .update(schema.userTable)
-      .set({ password: hashedPassword })
-      .where(eq(schema.userTable.id, id))
-      .returning();
-    return result[0];
+  async updateUserById(id: string, data: Prisma.UserUpdateInput) {
+    const result = await this.databaseService.user.update({
+      where: { id },
+      data,
+    });
+    return result;
   }
 }
