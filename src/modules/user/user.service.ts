@@ -27,7 +27,6 @@ export class UserService {
       .from(schema.userTable)
       .where(eq(schema.userTable.email, email))
       .limit(1);
-    console.log('🚀 ~ UserService ~ findByEmail ~ result:', result);
 
     return result[0];
   }
@@ -68,12 +67,13 @@ export class UserService {
     return result[0];
   }
 
-  async updateToken(userId: string, refresTokenStr: string | null) {
-    return this.db
+  async updateToken(userId: string, refresTokenStr: string) {
+    const updatedToken = await this.db
       .update(schema.refreshTokenTable)
       .set({ token: refresTokenStr })
       .where(eq(schema.refreshTokenTable.userId, userId))
       .returning({ userId: schema.refreshTokenTable.userId });
+    return updatedToken[0];
   }
 
   async createToken(userId: string, refresTokenStr: string | null) {
@@ -95,6 +95,7 @@ export class UserService {
       // Create a new refresh token
       update = await this.createToken(userId, refresTokenStr);
     }
+
     return update;
   }
 
@@ -124,5 +125,22 @@ export class UserService {
   async getLoggedUser(id: string) {
     const user = await this.findById(id);
     return user;
+  }
+
+  async getUserAndRefreshtokenByUserId(id: string) {
+    const user = await this.db.query.userTable.findFirst({
+      where: eq(schema.userTable.id, id),
+      with: { resfreshToken: true },
+    });
+    return user;
+  }
+
+  async updateUserPassword(id: string, hashedPassword: string) {
+    const result = await this.db
+      .update(schema.userTable)
+      .set({ password: hashedPassword })
+      .where(eq(schema.userTable.id, id))
+      .returning();
+    return result[0];
   }
 }

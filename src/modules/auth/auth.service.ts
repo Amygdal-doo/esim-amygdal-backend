@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -16,6 +20,11 @@ import * as userSchema from '../user/schemas/schema';
 import { Role } from 'src/common/enums/role.enum';
 import { LocalRegisterBodyDto } from './dtos/local-register-body.dto';
 import { WrongCredidentialsException } from 'src/common/exceptions/errors/auth/wrong-credidentials.exception';
+import { ChangePasswordDto } from './dtos/change-password.dto';
+import { ChangingPasswordException } from 'src/common/exceptions/errors/auth/changing-password.exception';
+import { UserNotFoundException } from 'src/common/exceptions/errors/user/user-no-exist.exception';
+import { PasswordSocialException } from 'src/common/exceptions/errors/auth/password-social-exception';
+import { PasswordException } from 'src/common/exceptions/errors/auth/password-exception';
 
 @Injectable()
 export class AuthService {
@@ -161,5 +170,51 @@ export class AuthService {
     } catch (e) {
       throw new Error(e);
     }
+  }
+
+  async refreshTokens(
+    loggedUserInfoDto: LoggedUserInfoDto,
+    refreshToken: string,
+  ) {
+    const refreshTk = await this.userService.findRefreshToken(
+      loggedUserInfoDto.id,
+    );
+    if (!refreshTk) throw new ForbiddenException('Access Denied'); // 403 Forbidden
+
+    const refreshTokenMatches = await verifyPassword(
+      refreshTk.token,
+      refreshToken,
+    );
+    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied'); // 403 Forbidden
+    const tokens = await this.getAccessAndRefreshTokens(loggedUserInfoDto);
+    await this.updateRefreshToken(loggedUserInfoDto.id, tokens.refreshToken);
+    return tokens;
+  }
+
+  async changePassword(
+    loggedUserInfoDto: LoggedUserInfoDto,
+    changePasswordDto: ChangePasswordDto,
+  ) {
+    const { oldPassword, newPassword, repeatPassword } = changePasswordDto;
+    const { id } = loggedUserInfoDto;
+
+    if (newPassword != repeatPassword) throw new ChangingPasswordException();
+
+    const user = await this.userService.findById(id);
+    if (!user) throw new UserNotFoundException();
+
+    if ((!user.password && !!user.googleId) || user.googleId)
+      throw new PasswordSocialException();
+
+    const isMatch = await verifyPassword(user.password, oldPassword);
+    if (!isMatch) throw new PasswordException();
+
+    const hashedPw = await hashPassword(newPassword);
+
+    await this.userService.updateUserById(id, { password: hashedPw });
+
+    return {
+      message: 'Password changed successfully.',
+    };
   }
 }

@@ -29,6 +29,13 @@
       "when": 1730186688971,
       "tag": "0003_removed_pass_not_null-constraint",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1730200889271,
+      "tag": "0004_fixed_updatedAt",
+      "breakpoints": true
     }
   ]
 }
