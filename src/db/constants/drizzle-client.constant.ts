@@ -1,1 +1,0 @@
-export const DRIZZLE_CLIENT = 'DRIZZLE_CLIENT';
