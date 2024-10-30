@@ -8,6 +8,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { PassportModule } from '@nestjs/passport';
+import { AppleStrategy } from './strategies/apple.strategy';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PassportModule } from '@nestjs/passport';
     AccessTokenStrategy,
     RefreshTokenStrategy,
     GoogleStrategy,
+    AppleStrategy,
   ],
 })
 export class AuthModule {}
