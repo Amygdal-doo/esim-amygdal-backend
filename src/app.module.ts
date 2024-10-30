@@ -8,6 +8,7 @@ import { HttpLoggerMiddleware } from './middleware/logging/logging.middleware';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { DatabaseModule } from './database/database.module';
+import { AiraloModule } from './modules/airalo/airalo.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DatabaseModule } from './database/database.module';
     DatabaseModule,
     AuthModule,
     UserModule,
+    AiraloModule,
   ],
   controllers: [AppController],
   providers: [AppService],
