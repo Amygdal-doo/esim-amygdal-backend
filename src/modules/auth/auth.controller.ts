@@ -9,11 +9,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiCreatedResponse,
   ApiExcludeEndpoint,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { HttpExceptionFilter } from 'src/common/exceptions/http-exception.filter';
@@ -31,6 +37,7 @@ import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { AccessTokenGuard } from './guards/access-token.guard';
 import { ChangePasswordDto } from './dtos/change-password.dto';
+import { LoginResponseDto } from './dtos/login-response.dto';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' })
@@ -44,8 +51,11 @@ export class AuthController {
   @UseFilters(new HttpExceptionFilter())
   @HttpCode(200)
   @ApiOperation({
-    summary: 'Login for users',
+    summary: 'User login',
+    description: 'Login to you account using email and password',
   })
+  @ApiOkResponse({ type: LoginResponseDto })
+  @ApiForbiddenResponse()
   async login(@UserLogged() user: LoggedUserInfoDto) {
     return this.authService.login(user);
   }
@@ -57,6 +67,8 @@ export class AuthController {
   @ApiBody({ type: LocalRegisterBodyDto })
   @UseFilters(new HttpExceptionFilter())
   @Serialize(UserResponseDto)
+  @ApiCreatedResponse({ type: UserResponseDto })
+  @ApiBadRequestResponse()
   async register(@Body() localRegisterBodyDto: LocalRegisterBodyDto) {
     const user = await this.authService.register(localRegisterBodyDto);
     // send email
@@ -86,6 +98,8 @@ export class AuthController {
   })
   @UseGuards(RefreshTokenGuard)
   @ApiBearerAuth('Access Token')
+  @ApiOkResponse({ type: LoginResponseDto })
+  @ApiUnauthorizedResponse()
   refreshTokensGet(
     @UserLogged() loggedUserInfoRefreshDto: LoggedUserInfoRefreshDto,
   ) {
@@ -113,6 +127,21 @@ export class AuthController {
     summary: 'Change password',
   })
   @UseFilters(new HttpExceptionFilter())
+  @HttpCode(200)
+  @ApiOkResponse({
+    description: 'Password changed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Password changed successfully',
+        },
+      },
+    },
+  })
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
   async changePassword(
     @UserLogged() loggedUserInfoDto,
     @Body() changePassword: ChangePasswordDto,

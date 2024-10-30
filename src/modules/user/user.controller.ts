@@ -1,6 +1,12 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiOperation, ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiBearerAuth,
+  ApiTags,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { UserLogged } from '../auth/decorators/user.decorator';
 import { LoggedUserInfoDto } from '../auth/dtos/logged-user-info.dto';
@@ -15,10 +21,13 @@ export class UserController {
   @Get('me')
   @ApiOperation({
     summary: 'Get logged User',
+    description: 'Get all neccesary information about logged user',
   })
   @ApiBearerAuth('Access Token')
   @UseGuards(AccessTokenGuard)
   @Serialize(UserResponseDto)
+  @ApiOkResponse({ type: UserResponseDto })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async me(@UserLogged() loggedUserInfoDto: LoggedUserInfoDto) {
     return this.userService.getLoggedUser(loggedUserInfoDto.id);
   }
