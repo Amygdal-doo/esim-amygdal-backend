@@ -156,6 +156,59 @@ export class AuthService {
     }
   }
 
+  async signInWithApple(data: any): Promise<LoginResponseDto> {
+    if (!data.user) throw new BadRequestException(); //check if data.user exists
+    const appleId = data.user.appleId;
+    let user = await this.userService.findByAppleId(appleId);
+
+    // if (user?.archived) throw new ForbiddenException();
+
+    if (user) {
+      const payload: LoggedUserInfoDto = {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        email: user.email,
+        loginType: user.loginType,
+      };
+      const { accessToken, refreshToken } =
+        await this.getAccessAndRefreshTokens(payload);
+      await this.updateRefreshToken(user.id, refreshToken);
+      return { accessToken, refreshToken };
+    }
+    user = await this.userService.findByEmail(data.user.email);
+    if (user) throw new SocialUserExistException('apple');
+
+    try {
+      const registerUser: Prisma.UserCreateInput = {
+        // dto or interfaace
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        username: await this.userService.generateUniqueUsername(),
+        email: data.user.email,
+        role: Role.USER,
+        //password: null,
+        googleId: appleId,
+        loginType: LoginType.APPLE,
+      };
+
+      const newUser = await this.userService.create(registerUser);
+      const payload: LoggedUserInfoDto = {
+        id: newUser.id,
+        username: newUser.username,
+        role: newUser.role,
+        email: newUser.email,
+        loginType: newUser.loginType,
+      };
+      const { accessToken, refreshToken } =
+        await this.getAccessAndRefreshTokens(payload);
+      await this.updateRefreshToken(newUser.id, refreshToken);
+      return { accessToken, refreshToken };
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
   async refreshTokens(
     loggedUserInfoDto: LoggedUserInfoDto,
     refreshToken: string,

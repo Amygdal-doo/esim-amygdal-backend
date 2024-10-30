@@ -40,6 +40,13 @@ export class UserService {
     return result;
   }
 
+  async findByAppleId(appleId: string) {
+    const result = await this.databaseService.user.findUnique({
+      where: { appleId },
+    });
+    return result;
+  }
+
   async findRefreshToken(userId: string) {
     const result = await this.databaseService.refreshToken.findUnique({
       where: { userId },

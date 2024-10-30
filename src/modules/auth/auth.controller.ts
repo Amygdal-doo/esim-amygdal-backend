@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpStatus,
   Post,
   Req,
   UseFilters,
@@ -39,6 +40,7 @@ import { AccessTokenGuard } from './guards/access-token.guard';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { LoginResponseDto } from './dtos/responses/login-response.dto';
 import { PasswordChangedSuccesfullyResponseDto } from './dtos/responses/password-changed-succesfully.response.dto';
+import { AppleAuthGuard } from './guards/apple-auth.guard';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' })
@@ -90,6 +92,24 @@ export class AuthController {
   @ApiExcludeEndpoint()
   @UseFilters(new HttpExceptionFilter())
   async signInWithGoogleRedirect(@Req() req) {
+    return this.authService.signInWithGoogle(req);
+  }
+
+  // Apple AUTH
+
+  @Get('apple')
+  @UseGuards(AppleAuthGuard)
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Login to system with your Apple account',
+  })
+  @ApiOkResponse()
+  async signInWithApple(): Promise<any> {
+    return HttpStatus.OK;
+  }
+
+  @Post('apple/redirect')
+  async signInWithAppleRedirect(@Req() req): Promise<any> {
     return this.authService.signInWithGoogle(req);
   }
 
