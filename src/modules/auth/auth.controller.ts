@@ -37,7 +37,8 @@ import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { AccessTokenGuard } from './guards/access-token.guard';
 import { ChangePasswordDto } from './dtos/change-password.dto';
-import { LoginResponseDto } from './dtos/login-response.dto';
+import { LoginResponseDto } from './dtos/responses/login-response.dto';
+import { PasswordChangedSuccesfullyResponseDto } from './dtos/responses/password-changed-succesfully.response.dto';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' })
@@ -128,18 +129,7 @@ export class AuthController {
   })
   @UseFilters(new HttpExceptionFilter())
   @HttpCode(200)
-  @ApiOkResponse({
-    description: 'Password changed successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          example: 'Password changed successfully',
-        },
-      },
-    },
-  })
+  @ApiOkResponse({ type: PasswordChangedSuccesfullyResponseDto })
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
   async changePassword(

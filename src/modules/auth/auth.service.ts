@@ -7,7 +7,7 @@ import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { LoggedUserInfoDto } from './dtos/logged-user-info.dto';
-import { LoginResponseDto } from './dtos/login-response.dto';
+import { LoginResponseDto } from './dtos/responses/login-response.dto';
 import {
   hashPassword,
   verifyPassword,
@@ -22,6 +22,7 @@ import { UserNotFoundException } from 'src/common/exceptions/errors/user/user-no
 import { PasswordSocialException } from 'src/common/exceptions/errors/auth/password-social-exception';
 import { PasswordException } from 'src/common/exceptions/errors/auth/password-exception';
 import { LoginType, Prisma, Role } from '@prisma/client';
+import { PasswordChangedSuccesfullyResponseDto } from './dtos/responses/password-changed-succesfully.response.dto';
 
 @Injectable()
 export class AuthService {
@@ -177,7 +178,7 @@ export class AuthService {
   async changePassword(
     loggedUserInfoDto: LoggedUserInfoDto,
     changePasswordDto: ChangePasswordDto,
-  ) {
+  ): Promise<PasswordChangedSuccesfullyResponseDto> {
     const { oldPassword, newPassword, repeatPassword } = changePasswordDto;
     const { id } = loggedUserInfoDto;
 
