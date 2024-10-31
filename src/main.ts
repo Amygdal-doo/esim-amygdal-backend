@@ -5,9 +5,21 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { configSwagger } from 'src/common/config';
+import * as fs from 'fs';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  let httpsOptions;
+
+  // in development mode, use a self-signed certificate
+  // for https to work with apple auth
+  if (process.env.NODE_ENV === 'development') {
+    httpsOptions = {
+      key: fs.readFileSync('certificates/localhost.key'),
+      cert: fs.readFileSync('certificates/localhost.crt'),
+    };
+  }
+  /******  1064abac-4e28-4f7c-bd94-2adbe995521b  *******/
+  const app = await NestFactory.create(AppModule, { httpsOptions });
 
   // Use helmet for security
   app.use(helmet());
