@@ -24,7 +24,7 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
       keyID: config.get<string>('APPLE_KEYID'),
       keyFilePath: config.get<string>('APPLE_KEYFILE_PATH'),
       callbackURL:
-        config.get<string>('DEV_URL') + '/api/v1/auth/apple/redirect',
+        config.get<string>('APPLE_CALLBACK') + '/api/v1/auth/apple/redirect',
       passReqToCallback: false,
       scope: ['email', 'name'],
     });
@@ -39,6 +39,7 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
     const { name, email, id } = profile;
     //console.log(refreshToken);
     // console.log(params);
+    console.log({ name, email, id });
 
     const user: SocialUserType = {
       appleId: id,
