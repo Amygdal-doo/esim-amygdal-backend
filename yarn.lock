@@ -1152,6 +1152,13 @@
     "@types/passport" "*"
     "@types/passport-oauth2" "*"
 
+"@types/passport-microsoft@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@types/passport-microsoft/-/passport-microsoft-1.0.3.tgz#52fbfac1ffb313abf48c2e2c94397775f316315d"
+  integrity sha512-Mqm/iTWEhnlS7RcgVlQMyMcXoqt51NbHtXZFAqcjSCZj4iUBu1MTlpw65X3xZ974K2WrlLQhOm3UMmLoUkMaMA==
+  dependencies:
+    "@types/passport-oauth2" "*"
+
 "@types/passport-oauth2@*":
   version "1.4.17"
   resolved "https://registry.yarnpkg.com/@types/passport-oauth2/-/passport-oauth2-1.4.17.tgz#d5d54339d44f6883d03e69dc0cc0e2114067abb4"
