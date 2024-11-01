@@ -112,7 +112,7 @@ export class AuthController {
   @UseGuards(AppleAuthGuard)
   @ApiExcludeEndpoint()
   async signInWithAppleRedirect(@Req() req): Promise<any> {
-    return this.authService.signInWithGoogle(req);
+    return this.authService.signInWithApple(req);
   }
 
   @Get('refresh')
