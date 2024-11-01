@@ -13,4 +13,11 @@ interface ISocialWithGoogle extends ISocialUserBasics {
   googleId: string;
 }
 
-export type SocialUserType = ISocialWithApple | ISocialWithGoogle;
+interface ISocialWithMicrosoft extends ISocialUserBasics {
+  microsoftId: string;
+}
+
+export type SocialUserType =
+  | ISocialWithApple
+  | ISocialWithGoogle
+  | ISocialWithMicrosoft;

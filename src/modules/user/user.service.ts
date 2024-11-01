@@ -47,6 +47,16 @@ export class UserService {
     return result;
   }
 
+  async findByMicrosoftId(microsoftId: string) {
+    console.log({ microsoftId });
+    const result = await this.databaseService.user.findUnique({
+      where: { microsoftId },
+    });
+    console.log({ result });
+
+    return result;
+  }
+
   async findRefreshToken(userId: string) {
     const result = await this.databaseService.refreshToken.findUnique({
       where: { userId },

@@ -256,4 +256,57 @@ export class AuthService {
       message: 'Password changed successfully.',
     };
   }
+
+  async signInWithMicrosoft(data: any): Promise<LoginResponseDto> {
+    if (!data.user) throw new BadRequestException(); //check if data.user exists
+    const microsoftId = data.user.microsoftId;
+    let user = await this.userService.findByMicrosoftId(microsoftId);
+
+    if (user) {
+      const payload: LoggedUserInfoDto = {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        email: user.email,
+        loginType: user.loginType,
+      };
+      const { accessToken, refreshToken } =
+        await this.getAccessAndRefreshTokens(payload);
+      await this.updateRefreshToken(user.id, refreshToken);
+      return { accessToken, refreshToken };
+    }
+    user = await this.userService.findByEmail(data.user.email);
+
+    if (user) throw new SocialUserExistException('microsoft');
+
+    try {
+      const registerUser: Prisma.UserCreateInput = {
+        // dto or interfaace
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        username: await this.userService.generateUniqueUsername(),
+        email: data.user.email,
+        role: Role.USER,
+        //password: null,
+        microsoftId: microsoftId,
+        loginType: LoginType.MICROSOFT,
+      };
+
+      const newUser = await this.userService.create(registerUser);
+
+      const payload: LoggedUserInfoDto = {
+        id: newUser.id,
+        username: newUser.username,
+        role: newUser.role,
+        email: newUser.email,
+        loginType: newUser.loginType,
+      };
+      const { accessToken, refreshToken } =
+        await this.getAccessAndRefreshTokens(payload);
+      await this.updateRefreshToken(newUser.id, refreshToken);
+      return { accessToken, refreshToken };
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
 }

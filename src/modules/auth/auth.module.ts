@@ -9,6 +9,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { AppleStrategy } from './strategies/apple.strategy';
+import { MicrosoftStrategy } from './strategies/microsoft.strategy';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AppleStrategy } from './strategies/apple.strategy';
     RefreshTokenStrategy,
     GoogleStrategy,
     AppleStrategy,
+    MicrosoftStrategy,
   ],
 })
 export class AuthModule {}

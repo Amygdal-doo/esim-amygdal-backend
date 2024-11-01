@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-microsoft';
+import { SocialUserType } from '../interfaces/social-user-object.interface';
 ConfigModule.forRoot();
 
 @Injectable()
@@ -20,13 +21,21 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
     accessToken: string,
     refreshToken: string,
     profile: any,
-    done,
+    done: (err: any, user: any) => void,
   ): Promise<any> {
-    const { id, displayName, emails } = profile;
-    const user = {
+    const { id, emails, name } = profile;
+    console.log(
+      '🚀 ~ file: microsoft.strategy.ts:MicrosoftStrategy.validate ~ profile:',
+      profile,
+    );
+
+    console.log({ id, name, emails });
+
+    const user: SocialUserType = {
       microsoftId: id,
-      name: displayName,
       email: emails[0].value,
+      firstName: name.givenName,
+      lastName: name.familyName,
       accessToken,
     };
     done(null, user);
