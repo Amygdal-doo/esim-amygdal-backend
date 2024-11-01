@@ -100,6 +100,7 @@ export class AuthController {
   @Get('apple')
   @UseGuards(AppleAuthGuard)
   @HttpCode(200)
+  @UseFilters(new HttpExceptionFilter())
   @ApiOperation({
     summary: 'Login to system with your Apple account',
   })
@@ -111,6 +112,7 @@ export class AuthController {
   @Post('apple/redirect')
   @UseGuards(AppleAuthGuard)
   @ApiExcludeEndpoint()
+  @UseFilters(new HttpExceptionFilter())
   async signInWithAppleRedirect(@Req() req): Promise<any> {
     return this.authService.signInWithApple(req);
   }
@@ -119,6 +121,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Generates new Tokens for the user',
   })
+  @UseFilters(new HttpExceptionFilter())
   @UseGuards(RefreshTokenGuard)
   @ApiBearerAuth('Access Token')
   @ApiOkResponse({ type: LoginResponseDto })

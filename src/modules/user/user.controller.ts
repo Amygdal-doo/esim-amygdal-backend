@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseFilters, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
   ApiOperation,
@@ -12,6 +12,7 @@ import { UserLogged } from '../auth/decorators/user.decorator';
 import { LoggedUserInfoDto } from '../auth/dtos/logged-user-info.dto';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { UserResponseDto } from './dtos/response/user-response.dto';
+import { HttpExceptionFilter } from 'src/common/exceptions/http-exception.filter';
 
 @ApiTags('User')
 @Controller({ path: 'user', version: '1' })
@@ -24,6 +25,7 @@ export class UserController {
     description: 'Get all neccesary information about logged user',
   })
   @ApiBearerAuth('Access Token')
+  @UseFilters(new HttpExceptionFilter())
   @UseGuards(AccessTokenGuard)
   @Serialize(UserResponseDto)
   @ApiOkResponse({ type: UserResponseDto })
