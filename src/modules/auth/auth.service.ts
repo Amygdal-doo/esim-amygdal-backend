@@ -196,7 +196,7 @@ export class AuthService {
         email: data.user.email,
         role: Role.USER,
         // password: null,
-        googleId: appleId,
+        appleId: appleId,
         loginType: LoginType.APPLE,
       };
 
