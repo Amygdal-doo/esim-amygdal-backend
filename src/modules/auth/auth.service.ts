@@ -157,7 +157,6 @@ export class AuthService {
   }
 
   async signInWithApple(data: any): Promise<LoginResponseDto> {
-    console.log('🚀 ~ AuthService ~ signInWithApple ~ data:', data.user);
     if (!data.user) throw new BadRequestException(); //check if data.user exists
 
     const appleId = data.user.appleId;
@@ -166,8 +165,6 @@ export class AuthService {
     // if (user?.archived) throw new ForbiddenException();
 
     if (user) {
-      console.log('🚀 ~ AuthService ~ signInWithApple ~ findByAppleId:', user);
-
       const payload: LoggedUserInfoDto = {
         id: user.id,
         username: user.username,
@@ -182,12 +179,9 @@ export class AuthService {
     }
     user = await this.userService.findByEmail(data.user.email);
 
-    console.log('🚀 ~ AuthService ~ signInWithApple ~ findByEmail:', user);
     if (user) throw new SocialUserExistException('apple');
 
     try {
-      console.log('running try block- registerUser: ');
-
       const registerUser: Prisma.UserCreateInput = {
         // dto or interfaace
         firstName: data.user.firstName,
@@ -201,7 +195,6 @@ export class AuthService {
       };
 
       const newUser = await this.userService.create(registerUser);
-      console.log('🚀 ~ AuthService ~ signInWithApple ~ newUser:', newUser);
 
       const payload: LoggedUserInfoDto = {
         id: newUser.id,

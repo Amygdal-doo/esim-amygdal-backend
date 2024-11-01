@@ -24,12 +24,6 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
     done: (err: any, user: any) => void,
   ): Promise<any> {
     const { id, emails, name } = profile;
-    console.log(
-      '🚀 ~ file: microsoft.strategy.ts:MicrosoftStrategy.validate ~ profile:',
-      profile,
-    );
-
-    console.log({ id, name, emails });
 
     const user: SocialUserType = {
       microsoftId: id,

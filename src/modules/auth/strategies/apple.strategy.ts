@@ -37,9 +37,6 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
     // done: VerifyCallback,
   ): Promise<SocialUserType> {
     const { name, email, id } = profile;
-    //console.log(refreshToken);
-    // console.log(params);
-    console.log({ name, email, id });
 
     const user: SocialUserType = {
       appleId: id,
