@@ -10,6 +10,7 @@ datasource db {
 enum LoginType {
   GOOGLE
   APPLE
+  MICROSOFT
   CREDENTIALS
 }
 
@@ -40,6 +41,7 @@ model User {
   loginType    LoginType      @default(CREDENTIALS)
   googleId     String?       @unique(map: "user_googleId_unique") @db.VarChar(100)
   appleId      String?       @unique(map: "user_appleId_unique") @db.VarChar(100)
+  microsoftId  String?       @unique(map: "user_microsoftId_unique") @db.VarChar(100)
   password     String?
   refreshToken RefreshToken?
   createdAt    DateTime      @default(now())

@@ -41,6 +41,7 @@ import { ChangePasswordDto } from './dtos/change-password.dto';
 import { LoginResponseDto } from './dtos/responses/login-response.dto';
 import { PasswordChangedSuccesfullyResponseDto } from './dtos/responses/password-changed-succesfully.response.dto';
 import { AppleAuthGuard } from './guards/apple-auth.guard';
+import { MicrosoftAuthGuard } from './guards/microsoft-auth.guard';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' })
@@ -115,6 +116,23 @@ export class AuthController {
   @UseFilters(new HttpExceptionFilter())
   async signInWithAppleRedirect(@Req() req): Promise<any> {
     return this.authService.signInWithApple(req);
+  }
+
+  // Google AUTH
+  @Get('microsoft')
+  @UseGuards(MicrosoftAuthGuard)
+  @ApiOperation({
+    summary: 'Login to system with your Microsoft account',
+  })
+  @UseFilters(new HttpExceptionFilter())
+  async signInWithMicrosoft() {}
+
+  @Get('microsoft/redirect')
+  @UseGuards(MicrosoftAuthGuard)
+  @ApiExcludeEndpoint()
+  @UseFilters(new HttpExceptionFilter())
+  async signInWithMicrosoftRedirect(@Req() req) {
+    return this.authService.signInWithMicrosoft(req);
   }
 
   @Get('refresh')
