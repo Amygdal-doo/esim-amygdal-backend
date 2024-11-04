@@ -81,6 +81,9 @@ export class UserResponseDto {
   appleId: string;
 
   @Exclude()
+  microsoftId: string;
+
+  @Exclude()
   password: string;
 }
 
