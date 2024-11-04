@@ -10,13 +10,6 @@ import { SocialUserType } from '../interfaces/social-user-object.interface';
 
 @Injectable()
 export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
-  /*************  ✨ Codeium Command ⭐  *************/
-  /**
-   * Creates an instance of the AppleStrategy, given an instance of a ConfigService.
-   * @param config The instance of the ConfigService.
-   * @constructor
-   */
-  /******  f617b6c5-ac45-4c76-9597-4717f347f5e1  *******/
   constructor(config: ConfigService) {
     super({
       clientID: config.get<string>('APPLE_CLIENTID'),
