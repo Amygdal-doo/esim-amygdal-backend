@@ -44,6 +44,7 @@ model User {
   microsoftId  String?       @unique(map: "user_microsoftId_unique") @db.VarChar(100)
   password     String?
   refreshToken RefreshToken?
+  airaloApiToken AiraloToken?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
@@ -51,3 +52,17 @@ model User {
   @@index([id], map: "id_Index")
   @@index([username], map: "username_Index")
 }
+
+model AiraloToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @unique @db.Uuid
+  token     String
+  expiresIn Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "user_Id_airaloToken_Index")
+}
+
+
