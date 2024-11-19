@@ -1,5 +1,5 @@
-import { Controller, Get, Param, UseFilters, UseGuards } from '@nestjs/common';
-import { UserService } from './user.service';
+import { Controller, Get, UseFilters, UseGuards } from '@nestjs/common';
+import { UserService } from './services/user.service';
 import {
   ApiOperation,
   ApiBearerAuth,

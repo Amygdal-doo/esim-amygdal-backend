@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UserNotFoundException } from 'src/common/exceptions/errors/user/user-no-exist.exception';
 import { Prisma, Role } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 
@@ -55,50 +54,6 @@ export class UserService {
     console.log({ result });
 
     return result;
-  }
-
-  async findRefreshToken(userId: string) {
-    const result = await this.databaseService.refreshToken.findUnique({
-      where: { userId },
-    });
-    return result;
-  }
-
-  async createToken(userId: string, refresTokenStr: string | null) {
-    const result = await this.databaseService.refreshToken.create({
-      data: {
-        userId,
-        token: refresTokenStr,
-      },
-    });
-    result;
-  }
-
-  async updateToken(userId: string, refresTokenStr: string | null) {
-    const result = await this.databaseService.refreshToken.update({
-      where: { userId },
-      data: {
-        userId,
-        token: refresTokenStr,
-      },
-    });
-    result;
-  }
-
-  async updateRefreshToken(userId: string, refresTokenStr: string | null) {
-    const existUser = await this.findById(userId);
-    if (!existUser) throw new UserNotFoundException();
-    const existingToken = await this.findRefreshToken(userId);
-    let update;
-    if (existingToken) {
-      // Update the existing refresh token
-      update = await this.updateToken(userId, refresTokenStr);
-    } else {
-      // Create a new refresh token
-      update = await this.createToken(userId, refresTokenStr);
-    }
-
-    return update;
   }
 
   async generateRandomUsername(): Promise<string> {

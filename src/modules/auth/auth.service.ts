@@ -3,7 +3,7 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { UserService } from '../user/user.service';
+import { UserService } from '../user/services/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { LoggedUserInfoDto } from './dtos/logged-user-info.dto';
@@ -23,13 +23,20 @@ import { PasswordSocialException } from 'src/common/exceptions/errors/auth/passw
 import { PasswordException } from 'src/common/exceptions/errors/auth/password-exception';
 import { LoginType, Prisma, Role } from '@prisma/client';
 import { PasswordChangedSuccesfullyResponseDto } from './dtos/responses/password-changed-succesfully.response.dto';
+import { AiraloService } from '../airalo/airalo.service';
+import { UserRefreshTokenService } from '../user/services/user-refresh-token.service';
+import { UserAiraloTokenService } from '../user/services/user-airalo-token.service';
+import { encryptToken } from 'src/common/helpers/encrypt.helper';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
+    private readonly userRefreshTokenService: UserRefreshTokenService,
+    private readonly userAiraloTokenService: UserAiraloTokenService,
     private readonly jwtService: JwtService,
     private configService: ConfigService,
+    private readonly aireloService: AiraloService,
   ) {}
   async getAccessAndRefreshTokens(
     payload: LoggedUserInfoDto,
@@ -51,6 +58,24 @@ export class AuthService {
     };
   }
 
+  async setUpAiraloToken(userId: string) {
+    const user = await this.userService.findById(userId);
+
+    try {
+      const airaloTokenResponse = await this.aireloService.getToken();
+      const encryptedToken = encryptToken(airaloTokenResponse.access_token);
+
+      await this.userAiraloTokenService.create(
+        user.id,
+        encryptedToken,
+        airaloTokenResponse.expires_in,
+      );
+    } catch (error) {
+      console.error('Error generating Airalo token:', error.message);
+      // Optionally handle failure to associate token
+    }
+  }
+
   async register(data: Prisma.UserCreateInput) {
     const emailExist = await this.userService.findByEmail(data.email);
     if (emailExist) throw new ExistingUserException();
@@ -62,7 +87,12 @@ export class AuthService {
     data.password = hashedPw;
     data.loginType = LoginType.CREDENTIALS;
 
-    return this.userService.create(data);
+    const user = await this.userService.create(data);
+
+    // Generate Airalo Token and associate with the user
+    await this.setUpAiraloToken(user.id);
+
+    return user;
   }
 
   async validateUser(
@@ -100,7 +130,10 @@ export class AuthService {
     refreshToken: string,
   ): Promise<void> {
     const hashedRefreshToken = await hashPassword(refreshToken);
-    await this.userService.updateRefreshToken(userId, hashedRefreshToken);
+    await this.userRefreshTokenService.updateRefreshToken(
+      userId,
+      hashedRefreshToken,
+    );
   }
 
   async signInWithGoogle(data: any): Promise<LoginResponseDto> {
@@ -150,6 +183,7 @@ export class AuthService {
       const { accessToken, refreshToken } =
         await this.getAccessAndRefreshTokens(payload);
       await this.updateRefreshToken(newUser.id, refreshToken);
+      await this.setUpAiraloToken(user.id);
       return { accessToken, refreshToken };
     } catch (e) {
       throw new Error(e);
@@ -206,6 +240,7 @@ export class AuthService {
       const { accessToken, refreshToken } =
         await this.getAccessAndRefreshTokens(payload);
       await this.updateRefreshToken(newUser.id, refreshToken);
+      await this.setUpAiraloToken(user.id);
       return { accessToken, refreshToken };
     } catch (e) {
       throw new Error(e);
@@ -216,7 +251,7 @@ export class AuthService {
     loggedUserInfoDto: LoggedUserInfoDto,
     refreshToken: string,
   ) {
-    const refreshTk = await this.userService.findRefreshToken(
+    const refreshTk = await this.userRefreshTokenService.findByUserId(
       loggedUserInfoDto.id,
     );
     if (!refreshTk) throw new ForbiddenException('Access Denied'); // 403 Forbidden
@@ -307,6 +342,7 @@ export class AuthService {
       const { accessToken, refreshToken } =
         await this.getAccessAndRefreshTokens(payload);
       await this.updateRefreshToken(newUser.id, refreshToken);
+      await this.setUpAiraloToken(user.id);
       return { accessToken, refreshToken };
     } catch (e) {
       throw new Error(e);

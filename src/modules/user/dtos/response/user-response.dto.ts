@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { LoginType, Role } from '@prisma/client';
+import { LoginType, Role, User } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
 
-export class UserResponseDto {
+export class UserResponseDto implements User {
   @ApiProperty({
     type: String,
     description: 'User ID',
@@ -82,6 +82,9 @@ export class UserResponseDto {
 
   @Exclude()
   microsoftId: string;
+
+  @Exclude()
+  airaloApiToken: string;
 
   @Exclude()
   password: string;
