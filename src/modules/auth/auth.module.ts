@@ -10,6 +10,7 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { AppleStrategy } from './strategies/apple.strategy';
 import { MicrosoftStrategy } from './strategies/microsoft.strategy';
+import { AiraloModule } from '../airalo/airalo.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MicrosoftStrategy } from './strategies/microsoft.strategy';
       expiresIn: process.env.EXPIRES_IN,
     },*/
     }),
+    AiraloModule,
   ],
   controllers: [AuthController],
   providers: [
