@@ -47,12 +47,9 @@ export class UserService {
   }
 
   async findByMicrosoftId(microsoftId: string) {
-    console.log({ microsoftId });
     const result = await this.databaseService.user.findUnique({
       where: { microsoftId },
     });
-    console.log({ result });
-
     return result;
   }
 

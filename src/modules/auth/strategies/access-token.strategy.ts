@@ -28,7 +28,6 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   async validate(payload: JwtPayloadDto) {
     const user = await this.userService.findById(payload.id);
-
     // if (user?.archived) return false;
     // Update user props if changes have been made
     payload.role = user?.role;

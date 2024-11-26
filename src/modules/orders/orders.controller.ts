@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UseFilters, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { UserLogged } from '../auth/decorators/user.decorator';
 import { LoggedUserInfoDto } from '../auth/dtos/logged-user-info.dto';
@@ -33,5 +41,34 @@ export class OrdersController {
     @UserLogged() loggedUserInfoDto: LoggedUserInfoDto,
   ) {
     return this.ordersService.createOrder(loggedUserInfoDto, createOrderDto);
+  }
+
+  @Get()
+  // @Roles(Role.SUPER_ADMIN)
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('Access Token')
+  @UseFilters(new HttpExceptionFilter())
+  @ApiOperation({ summary: 'Get My orders' })
+  // @Serialize(OrderListResponseDto)
+  // @ApiOkResponse({ type: OrderListResponseDto })
+  // @ApiForbiddenResponse()
+  async getOrders(@UserLogged() loggedUserInfoDto: LoggedUserInfoDto) {
+    return this.ordersService.getMyOrders(loggedUserInfoDto);
+  }
+
+  @Get(':id')
+  // @Roles(Role.SUPER_ADMIN)
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('Access Token')
+  @UseFilters(new HttpExceptionFilter())
+  @ApiOperation({ summary: 'Get My order by Id' })
+  // @Serialize(OrderListResponseDto)
+  @ApiOkResponse({ type: OrderListResponseDto })
+  @ApiForbiddenResponse()
+  async getOrder(
+    @UserLogged() loggedUserInfoDto: LoggedUserInfoDto,
+    @Param('id') id: string,
+  ) {
+    return this.ordersService.getOrder(loggedUserInfoDto, id);
   }
 }

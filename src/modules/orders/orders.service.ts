@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { AiraloOrdersService } from '../airalo/services/airalo-orders.service';
@@ -15,15 +15,42 @@ export class OrdersService {
   private readonly orderModel = this.databaseService.order;
 
   async getMyOrders(loggedUser: LoggedUserInfoDto) {
+    console.log(loggedUser);
+
     return this.orderModel.findMany({
       where: {
         userId: loggedUser.id,
+      },
+      include: {
+        esim: true,
       },
     });
   }
   // SuperAdmin
   async getOrders() {
     return this.orderModel.findMany({});
+  }
+
+  async findById(id: string) {
+    return this.orderModel.findUnique({
+      where: { id },
+    });
+  }
+
+  async getOrder(loggedUser: LoggedUserInfoDto, orderId: string) {
+    const order = await this.findById(orderId);
+    if (order.userId !== loggedUser.id) {
+      throw new NotFoundException('Order not found');
+    }
+    const airalo = await this.ordersService.getOrder(
+      loggedUser,
+      { include: 'sims,status' },
+      order.orderId,
+    );
+    return {
+      order,
+      airalo,
+    };
   }
 
   async create(data: Prisma.OrderCreateInput) {
@@ -42,8 +69,6 @@ export class OrdersService {
       loggedUser,
       createOrderDto,
     );
-    console.log(0, airaloOrder);
-    console.log('SADSAD', airaloOrder.sims);
 
     const data: CreateOrderRequestDto = {
       orderId: airaloOrder.id,
@@ -68,11 +93,8 @@ export class OrdersService {
         },
       },
     };
-    console.log(1, data);
 
     const order = await this.create(data);
-
-    console.log(2, order);
 
     return {
       message: 'Order created successfully',
