@@ -9,6 +9,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { DatabaseModule } from './database/database.module';
 import { AiraloModule } from './modules/airalo/airalo.module';
+import { EsimsModule } from './modules/esims/esims.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { AiraloModule } from './modules/airalo/airalo.module';
     AuthModule,
     UserModule,
     AiraloModule,
+    EsimsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

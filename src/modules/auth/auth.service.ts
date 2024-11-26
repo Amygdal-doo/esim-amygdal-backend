@@ -23,7 +23,7 @@ import { PasswordSocialException } from 'src/common/exceptions/errors/auth/passw
 import { PasswordException } from 'src/common/exceptions/errors/auth/password-exception';
 import { LoginType, Prisma, Role } from '@prisma/client';
 import { PasswordChangedSuccesfullyResponseDto } from './dtos/responses/password-changed-succesfully.response.dto';
-import { AiraloService } from '../airalo/airalo.service';
+import { AiraloService } from '../airalo/services/airalo.service';
 import { UserRefreshTokenService } from '../user/services/user-refresh-token.service';
 import { UserAiraloTokenService } from '../user/services/user-airalo-token.service';
 import { encryptToken } from 'src/common/helpers/encrypt.helper';

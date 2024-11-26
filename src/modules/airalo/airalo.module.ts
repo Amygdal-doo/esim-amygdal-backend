@@ -1,9 +1,15 @@
 import { Module } from '@nestjs/common';
-import { AiraloService } from './airalo.service';
+import { AiraloService } from './services/airalo.service';
 import { HttpModule } from '@nestjs/axios';
-import { AiraloController } from './airalo.controller';
+import { AiraloController } from './controllers/airalo.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from '../user/user.module';
+import { AiraloEsimsService } from './services/airalo-esims.service';
+import { AiraloOrdersService } from './services/airalo-orders.service';
+import { AiraloPackagesService } from './services/airalo-packages.service';
+import { AiraloEsimsController } from './controllers/airalo-esims.controller';
+import { AiraloPackagesController } from './controllers/airalo-packages.controller';
+import { AiraloOrdersController } from './controllers/airalo-orders.controller';
 
 @Module({
   imports: [
@@ -17,8 +23,23 @@ import { UserModule } from '../user/user.module';
     }),
     UserModule,
   ],
-  providers: [AiraloService],
-  controllers: [AiraloController],
-  exports: [AiraloService],
+  providers: [
+    AiraloService,
+    AiraloEsimsService,
+    AiraloOrdersService,
+    AiraloPackagesService,
+  ],
+  controllers: [
+    AiraloController,
+    AiraloEsimsController,
+    AiraloPackagesController,
+    AiraloOrdersController,
+  ],
+  exports: [
+    AiraloService,
+    AiraloEsimsService,
+    AiraloOrdersService,
+    AiraloPackagesService,
+  ],
 })
 export class AiraloModule {}

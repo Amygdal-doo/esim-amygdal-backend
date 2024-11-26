@@ -6,6 +6,8 @@
 #certificates and other
 /certificates
 
+/docker-compose.yaml
+
 # Logs
 logs
 *.log

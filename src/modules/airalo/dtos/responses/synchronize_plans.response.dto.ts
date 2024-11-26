@@ -248,7 +248,7 @@ class LinksDto {
   next: string;
 }
 
-class MetaDto {
+class MetaListDto {
   @ApiProperty({ description: 'Response message', example: 'success' })
   @Expose()
   message: string;
@@ -285,16 +285,22 @@ class MetaDto {
   total: number;
 }
 
-export class SynchronizePlansResponseDto {
-  @ApiProperty({ description: 'List of countries', type: [CountryDto] })
-  @Expose()
-  data: CountryDto[];
+export class AiraloResponseDto {
+  // @ApiProperty({ description: 'List of countries', type: [CountryDto] })
+  // @Expose()
+  // data: [];
 
   @ApiProperty({ description: 'Pagination links', type: LinksDto })
   @Expose()
   links: LinksDto;
 
-  @ApiProperty({ description: 'Pagination metadata', type: MetaDto })
+  @ApiProperty({ description: 'Pagination metadata', type: MetaListDto })
   @Expose()
-  meta: MetaDto;
+  meta: MetaListDto;
+}
+
+export class SynchronizePlansResponseDto extends AiraloResponseDto {
+  @ApiProperty({ description: 'List of countries', type: [CountryDto] })
+  @Expose()
+  data: CountryDto[];
 }
