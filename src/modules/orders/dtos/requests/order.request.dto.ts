@@ -16,7 +16,7 @@ export class CreateOrderRequestDto implements Prisma.OrderCreateInput {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  orderCreatedAt: Date | string;
+  orderCreatedAt: string;
 
   @ApiProperty()
   @IsString()

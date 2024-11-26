@@ -38,7 +38,7 @@ export class OrdersService {
   ) {
     // const orders = await this.getMyOrders(loggedUser);
 
-    const airaloOrder = await this.ordersService.createOrder(
+    const airaloOrder = await this.ordersService.create(
       loggedUser,
       createOrderDto,
     );
@@ -49,7 +49,7 @@ export class OrdersService {
       orderId: airaloOrder.id,
       code: airaloOrder.code,
       orderCreatedAt: airaloOrder.created_at,
-      quantity: airaloOrder.quantity,
+      quantity: airaloOrder.quantity.toString(),
       packageId: airaloOrder.package_id,
       user: {
         connect: {

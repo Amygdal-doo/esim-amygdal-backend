@@ -72,7 +72,7 @@ model Order {
   userId         String   @unique @db.Uuid
   orderId        Int      @unique
   code           String   @unique
-  orderCreatedAt DateTime
+  orderCreatedAt String
   quantity       String
   packageId      String
   esim           Esim[]

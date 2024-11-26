@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString, ValidateNested } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { Type, Expose } from 'class-transformer';
 import { SimDto } from './order.response';
 
@@ -10,7 +10,7 @@ class InstallationGuidesDto {
   en: string;
 }
 
-export class CreateOrderResponseDto {
+export class DataResponseDto {
   @ApiProperty({ example: 'kallur-digital-7days-1gb' })
   @IsString()
   @Expose()
@@ -108,6 +108,13 @@ export class CreateOrderResponseDto {
   @Type(() => SimDto)
   @Expose()
   sims: SimDto[];
+}
+export class CreateOrderResponseDto {
+  @ApiProperty({ type: DataResponseDto })
+  // @ValidateNested()
+  @Type(() => DataResponseDto)
+  @Expose()
+  data: DataResponseDto;
 
   @ApiProperty({ example: { message: 'success' } })
   // @ValidateNested()

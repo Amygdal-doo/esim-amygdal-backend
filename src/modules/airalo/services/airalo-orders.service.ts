@@ -18,7 +18,10 @@ import { AxiosResponse } from 'axios';
 import { plainToInstance } from 'class-transformer';
 import { AIRALO_ENDPOINTS } from '../constants/url.constants';
 import { CreateOrderDto } from '../dtos/requests/create-order.request.dto';
-import { CreateOrderResponseDto } from '../dtos/responses/create-order.response.dto';
+import {
+  CreateOrderResponseDto,
+  DataResponseDto,
+} from '../dtos/responses/create-order.response.dto';
 
 @Injectable()
 export class AiraloOrdersService {
@@ -143,7 +146,7 @@ export class AiraloOrdersService {
   async create(
     loggedUser: LoggedUserInfoDto,
     createOrderDto: CreateOrderDto,
-  ): Promise<CreateOrderResponseDto> {
+  ): Promise<DataResponseDto> {
     const decodedToken = await this.airaloService.getOrRefreshToken(
       loggedUser.id,
     );
@@ -196,9 +199,9 @@ export class AiraloOrdersService {
       //     enableCircularCheck: true,
       //   },
       // );
-      console.log(666, response.data, 777, response.data.sims);
+      console.log(2132, response.data);
 
-      return response.data;
+      return response.data.data;
     } catch (err) {
       console.error('Error creating order:', err.response);
       if (err.response?.status === 422) {
