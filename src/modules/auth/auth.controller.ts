@@ -80,7 +80,7 @@ export class AuthController {
   }
 
   // Google AUTH
-  @Get('google')
+  @Post('google')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({
     summary: 'Login to system with your Google account',
@@ -98,7 +98,7 @@ export class AuthController {
 
   // Apple AUTH
 
-  @Get('apple')
+  @Post('apple')
   @UseGuards(AppleAuthGuard)
   @HttpCode(200)
   @UseFilters(new HttpExceptionFilter())
@@ -119,7 +119,7 @@ export class AuthController {
   }
 
   // Google AUTH
-  @Get('microsoft')
+  @Post('microsoft')
   @UseGuards(MicrosoftAuthGuard)
   @ApiOperation({
     summary: 'Login to system with your Microsoft account',

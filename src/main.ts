@@ -13,7 +13,11 @@ async function bootstrap() {
   app.use(helmet());
 
   // enable cors
-  app.enableCors();
+  app.enableCors({
+    origin: '*', // Allow all origins
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
+    // allowedHeaders: 'Content-Type, Authorization', // Allowed headers
+  });
 
   app.setGlobalPrefix('api' /*, { exclude: ['v1/some-route'] }*/);
 
