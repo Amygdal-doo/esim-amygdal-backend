@@ -15,8 +15,10 @@ RUN yarn build
 # Final stage
 FROM node:lts-alpine
 WORKDIR /app
+# COPY --from=base /app/package.json /app/yarn.lock ./
 COPY --from=base /app/node_modules /app/node_modules
 COPY --from=base /app/dist /app/dist
+COPY --from=base /app/secret_key /app/secret_key
 EXPOSE 3000
 CMD ["node", "./dist/src/main.js"]
 
