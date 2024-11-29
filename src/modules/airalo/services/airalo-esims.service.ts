@@ -77,7 +77,7 @@ export class AiraloEsimsService {
 
       return parsedResponse; // Assuming parsedResponse.data is a CountryDto[]
     } catch (err) {
-      console.error('Error fetching token:', err);
+      console.error('Error fetching esim list:', err);
       if (err.response?.status === 422) {
         throw new HttpException(err.response.data, 422);
       }
@@ -120,7 +120,7 @@ export class AiraloEsimsService {
 
       return parsedResponse; // Assuming parsedResponse.data is a CountryDto[]
     } catch (err) {
-      console.error('Error fetching token:', err?.response);
+      console.error('Error fetching esim:', err?.response);
       if (err.response?.status === 422) {
         throw new HttpException(err.response.data, 422);
       }
@@ -165,7 +165,10 @@ export class AiraloEsimsService {
 
       return parsedResponse;
     } catch (err) {
-      console.error('Error fetching token:', err.response.data.meta.message);
+      console.error(
+        'Error fetching instructions:',
+        err.response.data.meta.message,
+      );
       if (err.response?.status === 422) {
         throw new HttpException(err.response.data, 422);
       }

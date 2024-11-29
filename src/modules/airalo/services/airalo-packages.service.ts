@@ -69,7 +69,7 @@ export class AiraloPackagesService {
 
       return parsedResponse.data; // Assuming parsedResponse.data is a CountryDto[]
     } catch (err) {
-      console.error('Error fetching token:', err);
+      console.error('Error fetching packages:', err);
       if (err.response?.status === 422) {
         throw new HttpException(err.response.data, 422);
       }

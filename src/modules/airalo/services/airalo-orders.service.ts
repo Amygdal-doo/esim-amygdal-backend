@@ -87,7 +87,7 @@ export class AiraloOrdersService {
 
       return parsedResponse; // Assuming parsedResponse.data is a CountryDto[]
     } catch (err) {
-      console.error('Error fetching token:', err);
+      console.error('Error fetching orders:', err);
       if (err.response?.status === 422) {
         throw new HttpException(err.response.data, 422);
       }
@@ -134,7 +134,7 @@ export class AiraloOrdersService {
 
       return parsedResponse; // Assuming parsedResponse.data is a CountryDto[]
     } catch (err) {
-      console.error('Error fetching token:', err);
+      console.error('Error fetching order:', err);
       if (err.response?.status === 422) {
         throw new HttpException(err.response.data, 422);
       }
