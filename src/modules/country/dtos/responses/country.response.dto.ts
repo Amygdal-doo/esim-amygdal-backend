@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Country } from '@prisma/client';
 import { Expose, Type } from 'class-transformer';
+import { PaginationResponseDto } from 'src/common/dtos/pagination.dto';
 import { CurrencyResponseDto } from 'src/common/dtos/responses/currency.response.dto';
 import { ImageResponseDto } from 'src/common/dtos/responses/image.response.dto';
 import { LanguageResponseDto } from 'src/common/dtos/responses/language.reponse.dto';
@@ -101,4 +102,10 @@ export class CountryResponseDto implements Country {
   @Expose()
   @Type(() => LanguageResponseDto)
   language: LanguageResponseDto;
+}
+
+export class CountryPaginationResponseDto extends PaginationResponseDto {
+  @Expose()
+  @Type(() => CountryResponseDto)
+  results: CountryResponseDto[];
 }

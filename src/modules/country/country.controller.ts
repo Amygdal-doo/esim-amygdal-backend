@@ -1,17 +1,37 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CountryService } from './country.service';
-import { CountryResponseDto } from './dtos/responses/country.response.dto';
+import {
+  CountryPaginationResponseDto,
+  CountryResponseDto,
+} from './dtos/responses/country.response.dto';
+import { Serialize } from 'src/common/interceptors/serialize.interceptor';
+import { OrderType, PaginationQueryDto } from 'src/common/dtos/pagination.dto';
 
 @ApiTags('Country')
-@Controller({ path: 'country', version: '1' })
+@Controller({ path: 'countries', version: '1' })
 export class CountryController {
   constructor(private readonly countryService: CountryService) {}
 
-  @Get()
+  @Get('all')
   @ApiOkResponse({ type: [CountryResponseDto] })
+  @Serialize(CountryResponseDto)
   @ApiOperation({ summary: 'Get all countries' })
   async getCountries() {
-    return await this.countryService.getCountries();
+    return await this.countryService.findAll();
+  }
+
+  @Get()
+  @ApiOkResponse({ type: CountryPaginationResponseDto })
+  @Serialize(CountryPaginationResponseDto)
+  @ApiOperation({ summary: 'Get all countries paginated' })
+  async getCountriesPaginated(
+    @Query() paginationQuery: PaginationQueryDto,
+    @Query() orderType: OrderType,
+  ) {
+    return await this.countryService.findAllPaginated(
+      paginationQuery,
+      orderType,
+    );
   }
 }
