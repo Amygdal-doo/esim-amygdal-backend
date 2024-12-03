@@ -11,6 +11,7 @@ import { DatabaseModule } from './database/database.module';
 import { AiraloModule } from './modules/airalo/airalo.module';
 import { EsimsModule } from './modules/esims/esims.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { CountryModule } from './modules/country/country.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { OrdersModule } from './modules/orders/orders.module';
     AiraloModule,
     EsimsModule,
     OrdersModule,
+    CountryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

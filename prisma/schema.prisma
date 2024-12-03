@@ -70,8 +70,8 @@ model AiraloToken {
 model Order {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId         String   @db.Uuid
-  orderId        Int      
-  code           String   
+  orderId        Int
+  code           String
   orderCreatedAt String
   quantity       String
   packageId      String
@@ -94,4 +94,61 @@ model Esim {
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Image {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  src       String // URL of the image
+  altText   String? // Alternative text for the image
+  width     Int
+  height    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  countries Country?
+}
+
+model Country {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug         String
+  title        String
+  code         String?    @unique
+  // capital      String
+  region       String?
+  currency     Currency? @relation(fields: [currencyId], references: [id])
+  currencyId   String?    @db.Uuid
+  language     Language? @relation(fields: [languageId], references: [id])
+  languageId   String?    @db.Uuid
+  imageId      String?   @unique @db.Uuid
+  image        Image?    @relation(fields: [imageId], references: [id])
+  // flag         String?
+  diallingCode String?
+  // isoCode      String
+
+  @@index(fields: [slug])
+  @@index(fields: [title])
+  @@index(fields: [code])
+  @@index(fields: [region])
+}
+
+model Currency {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code      String    @unique
+  name      String
+  symbol    String?
+  countries Country[]
+  // shippingMethods ShippingMethod[]
+
+  @@index(fields: [code])
+  @@index(fields: [name])
+}
+
+model Language {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code      String?   @unique
+  // iso639_2   String?
+  name      String
+  // nativeName String?
+  countries Country[]
+
+  @@index(fields: [name])
 }
