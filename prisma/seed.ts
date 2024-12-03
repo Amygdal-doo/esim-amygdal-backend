@@ -1,4 +1,7 @@
 import { LoginType, PrismaClient, Role } from '@prisma/client';
+
+import { mergedCountries } from './data/mergedCountries';
+
 const prisma = new PrismaClient();
 
 const SUPER_ADMIN_EMAIL = 'super_admin@amygdal.com';
@@ -70,6 +73,65 @@ async function main() {
   });
 
   console.log('User created with id: ', USER.id);
+
+  const data = mergedCountries;
+  const countries = data;
+
+  for (const country of countries) {
+    // Create image entry if available
+    const image = country.image
+      ? await prisma.image.create({
+          data: {
+            src: country.image.url,
+            width: country.image.width,
+            height: country.image.height,
+          },
+        })
+      : null;
+
+    // Create or update currency
+    const currency = country.currency
+      ? await prisma.currency.upsert({
+          where: { code: country.currency.code },
+          update: {},
+          create: {
+            code: country.currency.code,
+            name: country.currency.name,
+            symbol: country.currency.symbol,
+          },
+        })
+      : null;
+
+    // Create or update language
+    const language = country.language
+      ? await prisma.language.upsert({
+          where: { code: country.language.code },
+          update: {},
+          create: {
+            code: country.language.code,
+            name: country.language.name,
+          },
+        })
+      : null;
+
+    // Create country entry
+    await prisma.country.create({
+      data: {
+        slug: country.slug,
+        title: country.title,
+        code: country.code ? country.code : undefined,
+        region: country.region ? country.region : null,
+        diallingCode: country.diallingCode ? country.diallingCode : null,
+        image: image
+          ? {
+              connect: { id: image.id }, // Reference to the image by its id
+            }
+          : undefined,
+        currency: currency ? { connect: { code: currency.code } } : undefined,
+        language: language ? { connect: { code: language.code } } : undefined,
+      },
+    });
+  }
 }
 main()
   .then(async () => {
