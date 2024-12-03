@@ -21,7 +21,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:seed": "ts-node ./src/modules/drizzle/seeds/seed.ts"
+    "db:seed": "ts-node ./prisma/seed.ts"
   },
   "dependencies": {
     "@arendajaelu/nestjs-passport-apple": "^2.0.3",
