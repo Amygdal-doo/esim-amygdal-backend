@@ -36,11 +36,6 @@ export class CountryService {
       where: {
         // name: { contains: paginationQuery.name, mode: 'insensitive' },
       },
-      include: {
-        image: true,
-        currency: true,
-        language: true,
-      },
     };
 
     const { page, limit } = pageLimit(paginationQuery);
@@ -52,6 +47,11 @@ export class CountryService {
     const startIndex = page < 1 ? 0 : (page - 1) * limit;
 
     const results = await this.countryModel.findMany({
+      include: {
+        image: true,
+        currency: true,
+        language: true,
+      },
       where: query.where,
       skip: startIndex,
       take: limit,
