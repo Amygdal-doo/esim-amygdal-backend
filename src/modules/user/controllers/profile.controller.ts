@@ -57,7 +57,6 @@ export class UserProfileController {
     @UserLogged() loggedUserInfoDto: LoggedUserInfoDto,
     @Body() update: UpdateUserProfileDto,
   ) {
-    console.log(update);
     return this.userProfileService.updateOrCreate(loggedUserInfoDto.id, update);
   }
 }
