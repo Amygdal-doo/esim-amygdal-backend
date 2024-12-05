@@ -61,4 +61,17 @@ export class CountryService {
     });
     return { limit, page, pages, total, results };
   }
+
+  async search(query: string) {
+    return await this.countryModel.findMany({
+      where: {
+        slug: { contains: query, mode: 'insensitive' },
+      },
+      include: {
+        image: true,
+        currency: true,
+        language: true,
+      },
+    });
+  }
 }
