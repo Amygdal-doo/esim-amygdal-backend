@@ -1,12 +1,19 @@
 import { Module } from '@nestjs/common';
-import { UserController } from './user.controller';
+import { UserController } from './controllers/user.controller';
 import { UserService } from './services/user.service';
 import { UserRefreshTokenService } from './services/user-refresh-token.service';
 import { UserAiraloTokenService } from './services/user-airalo-token.service';
+import { UserProfileService } from './services/user-profile.service';
+import { UserProfileController } from './controllers/profile.controller';
 
 @Module({
-  controllers: [UserController],
-  providers: [UserService, UserRefreshTokenService, UserAiraloTokenService],
+  controllers: [UserController, UserProfileController],
+  providers: [
+    UserService,
+    UserRefreshTokenService,
+    UserAiraloTokenService,
+    UserProfileService,
+  ],
   exports: [UserService, UserRefreshTokenService, UserAiraloTokenService],
 })
 export class UserModule {}

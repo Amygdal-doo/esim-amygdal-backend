@@ -1,5 +1,5 @@
 import { Controller, Get, UseFilters, UseGuards } from '@nestjs/common';
-import { UserService } from './services/user.service';
+import { UserService } from '../services/user.service';
 import {
   ApiOperation,
   ApiBearerAuth,
@@ -8,10 +8,10 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
-import { UserLogged } from '../auth/decorators/user.decorator';
-import { LoggedUserInfoDto } from '../auth/dtos/logged-user-info.dto';
-import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { UserResponseDto } from './dtos/response/user-response.dto';
+import { UserLogged } from '../../auth/decorators/user.decorator';
+import { LoggedUserInfoDto } from '../../auth/dtos/logged-user-info.dto';
+import { AccessTokenGuard } from '../../auth/guards/access-token.guard';
+import { UserResponseDto } from '../dtos/response/user-response.dto';
 import { HttpExceptionFilter } from 'src/common/exceptions/http-exception.filter';
 
 @ApiTags('User')

@@ -21,6 +21,14 @@ export class CountryController {
     return await this.countryService.findAll();
   }
 
+  @Get('search')
+  @ApiOkResponse({ type: [CountryResponseDto] })
+  @Serialize(CountryResponseDto)
+  @ApiOperation({ summary: 'Search countries' })
+  async searchCountries(@Query('query') query: string) {
+    return await this.countryService.search(query);
+  }
+
   @Get()
   @ApiOkResponse({ type: CountryPaginationResponseDto })
   @Serialize(CountryPaginationResponseDto)
