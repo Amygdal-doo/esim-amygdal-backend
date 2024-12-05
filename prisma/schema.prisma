@@ -47,12 +47,26 @@ model User {
   airaloApiToken AiraloToken?
   order          Order[]
   esim           Esim[]
+  profile        Profile?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
   @@index([email], map: "email_Index")
   @@index([id], map: "id_Index")
   @@index([username], map: "username_Index")
+}
+
+model Profile {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  newsletter  Boolean @default(false)
+  location    String? 
+  phoneNumber String?  @db.VarChar(50)
+  userId    String   @unique @db.Uuid
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // language String
+  // currency String
+    @@index([userId], map: "user_Id_profile_Index")
 }
 
 model AiraloToken {
@@ -111,13 +125,13 @@ model Country {
   id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   slug         String
   title        String
-  code         String?    @unique
+  code         String?   @unique
   // capital      String
   region       String?
   currency     Currency? @relation(fields: [currencyId], references: [id])
-  currencyId   String?    @db.Uuid
+  currencyId   String?   @db.Uuid
   language     Language? @relation(fields: [languageId], references: [id])
-  languageId   String?    @db.Uuid
+  languageId   String?   @db.Uuid
   imageId      String?   @unique @db.Uuid
   image        Image?    @relation(fields: [imageId], references: [id])
   // flag         String?
