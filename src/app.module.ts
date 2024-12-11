@@ -12,6 +12,7 @@ import { AiraloModule } from './modules/airalo/airalo.module';
 import { EsimsModule } from './modules/esims/esims.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { CountryModule } from './modules/country/country.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CountryModule } from './modules/country/country.module';
     EsimsModule,
     OrdersModule,
     CountryModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
