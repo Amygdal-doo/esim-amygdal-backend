@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Role } from '@prisma/client';
+import { LoginType, Prisma, Role } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
+import { UpdateUserInfoDto } from '../dtos/requests/update-user-info.dto';
+import { LoggedUserInfoDto } from 'src/modules/auth/dtos/logged-user-info.dto';
 
 @Injectable()
 export class UserService {
@@ -95,5 +97,30 @@ export class UserService {
       data,
     });
     return result;
+  }
+
+  async updateUserInfoById(id: string, data: UpdateUserInfoDto) {
+    const result = await this.databaseService.user.update({
+      where: { id },
+      data,
+    });
+    return result;
+  }
+
+  async changeEmail(loggedUserInfoDto: LoggedUserInfoDto, email: string) {
+    const { id, loginType } = loggedUserInfoDto;
+    const update: Prisma.UserUpdateArgs = {
+      where: { id },
+      data: { email },
+    };
+    if (loginType !== LoginType.CREDENTIALS) {
+      update.data.loginType = LoginType.CREDENTIALS;
+      update.data.googleId = null;
+      update.data.appleId = null;
+      update.data.microsoftId = null;
+    }
+    const updateUser = await this.databaseService.user.update(update);
+    return updateUser;
+    // await this.databaseService.$transaction([updateUser]);
   }
 }

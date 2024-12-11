@@ -42,6 +42,8 @@ import { LoginResponseDto } from './dtos/responses/login-response.dto';
 import { PasswordChangedSuccesfullyResponseDto } from './dtos/responses/password-changed-succesfully.response.dto';
 import { AppleAuthGuard } from './guards/apple-auth.guard';
 import { MicrosoftAuthGuard } from './guards/microsoft-auth.guard';
+import { ChangeEmailDto } from './dtos/change-email.dto';
+import { EmailChangedSuccesfullyResponseDto } from './dtos/responses/email-changed.response.dto';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' })
@@ -164,7 +166,7 @@ export class AuthController {
   //   return this.authService.refreshTokens(loggedUserInfoDto, refreshToken);
   // }
 
-  @Post('changePassword')
+  @Post('change/password')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth('Access Token')
   @ApiOperation({
@@ -182,6 +184,27 @@ export class AuthController {
     return await this.authService.changePassword(
       loggedUserInfoDto,
       changePassword,
+    );
+  }
+
+  @Post('change/email')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('Access Token')
+  @ApiOperation({
+    summary: 'Change email',
+  })
+  @UseFilters(new HttpExceptionFilter())
+  @HttpCode(200)
+  @ApiOkResponse({ type: EmailChangedSuccesfullyResponseDto })
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
+  async changeEmail(
+    @UserLogged() loggedUserInfoDto,
+    @Body() changeEmailDto: ChangeEmailDto,
+  ) {
+    return await this.authService.changeEmail(
+      loggedUserInfoDto,
+      changeEmailDto,
     );
   }
 }

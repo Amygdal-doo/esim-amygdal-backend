@@ -19,7 +19,6 @@ import { WrongCredidentialsException } from 'src/common/exceptions/errors/auth/w
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { ChangingPasswordException } from 'src/common/exceptions/errors/auth/changing-password.exception';
 import { UserNotFoundException } from 'src/common/exceptions/errors/user/user-no-exist.exception';
-import { PasswordSocialException } from 'src/common/exceptions/errors/auth/password-social-exception';
 import { PasswordException } from 'src/common/exceptions/errors/auth/password-exception';
 import { LoginType, Prisma, Role } from '@prisma/client';
 import { PasswordChangedSuccesfullyResponseDto } from './dtos/responses/password-changed-succesfully.response.dto';
@@ -27,6 +26,7 @@ import { AiraloService } from '../airalo/services/airalo.service';
 import { UserRefreshTokenService } from '../user/services/user-refresh-token.service';
 import { UserAiraloTokenService } from '../user/services/user-airalo-token.service';
 import { encryptToken } from 'src/common/helpers/encrypt.helper';
+import { ChangeEmailDto } from './dtos/change-email.dto';
 
 @Injectable()
 export class AuthService {
@@ -173,6 +173,7 @@ export class AuthService {
       };
 
       const newUser = await this.userService.create(registerUser);
+
       const payload: LoggedUserInfoDto = {
         id: newUser.id,
         username: newUser.username,
@@ -183,7 +184,7 @@ export class AuthService {
       const { accessToken, refreshToken } =
         await this.getAccessAndRefreshTokens(payload);
       await this.updateRefreshToken(newUser.id, refreshToken);
-      await this.setUpAiraloToken(user.id);
+      await this.setUpAiraloToken(newUser.id);
       return { accessToken, refreshToken };
     } catch (e) {
       throw new Error(e);
@@ -240,7 +241,7 @@ export class AuthService {
       const { accessToken, refreshToken } =
         await this.getAccessAndRefreshTokens(payload);
       await this.updateRefreshToken(newUser.id, refreshToken);
-      await this.setUpAiraloToken(user.id);
+      await this.setUpAiraloToken(newUser.id);
       return { accessToken, refreshToken };
     } catch (e) {
       throw new Error(e);
@@ -271,18 +272,28 @@ export class AuthService {
     changePasswordDto: ChangePasswordDto,
   ): Promise<PasswordChangedSuccesfullyResponseDto> {
     const { oldPassword, newPassword, repeatPassword } = changePasswordDto;
-    const { id } = loggedUserInfoDto;
-
-    if (newPassword != repeatPassword) throw new ChangingPasswordException();
+    const { id, loginType } = loggedUserInfoDto;
 
     const user = await this.userService.findById(id);
     if (!user) throw new UserNotFoundException();
 
-    if ((!user.password && !!user.googleId) || user.googleId)
-      throw new PasswordSocialException();
+    const passExists = !!user.password;
 
-    const isMatch = await verifyPassword(user.password, oldPassword);
-    if (!isMatch) throw new PasswordException();
+    if (!oldPassword && loggedUserInfoDto.loginType === LoginType.CREDENTIALS)
+      throw new ForbiddenException("old password can't be empty");
+
+    if (passExists && (loginType !== LoginType.CREDENTIALS || !oldPassword))
+      throw new BadRequestException("old password can't be empty");
+
+    if (passExists) {
+      const isMatch = await verifyPassword(user.password, oldPassword);
+      if (!isMatch) throw new PasswordException();
+    }
+
+    if (newPassword != repeatPassword) throw new ChangingPasswordException();
+
+    // if ((!user.password && !!user.googleId) || user.googleId)
+    //   throw new PasswordSocialException();
 
     const hashedPw = await hashPassword(newPassword);
 
@@ -292,6 +303,47 @@ export class AuthService {
 
     return {
       message: 'Password changed successfully.',
+    };
+  }
+
+  async changeEmail(
+    loggedUserInfoDto: LoggedUserInfoDto,
+    changeEmailDto: ChangeEmailDto,
+  ): Promise<PasswordChangedSuccesfullyResponseDto> {
+    const { currentPassword, oldEmail, email } = changeEmailDto;
+    const { id } = loggedUserInfoDto;
+
+    // if (newPassword != repeatPassword) throw new ChangingPasswordException();
+
+    const user = await this.userService.findById(id);
+    if (!user) throw new UserNotFoundException();
+
+    if (email === oldEmail) throw new BadRequestException('Email is the same');
+
+    if (oldEmail !== user.email)
+      throw new BadRequestException('Current email is not correct');
+
+    if (!user.password)
+      throw new BadRequestException(
+        'Cant change email if your account does not have a password',
+      );
+
+    // if ((!user.password && !!user.googleId) || user.googleId)
+    //   throw new PasswordSocialException();
+
+    const isMatch = await verifyPassword(user.password, currentPassword);
+    if (!isMatch) throw new PasswordException();
+
+    const newEmail = await this.userService.findByEmail(email);
+    if (newEmail)
+      throw new BadRequestException(
+        'new email is already connected to another account',
+      );
+
+    await this.userService.changeEmail(loggedUserInfoDto, email); // update email
+
+    return {
+      message: 'Email changed successfully.',
     };
   }
 
@@ -342,7 +394,7 @@ export class AuthService {
       const { accessToken, refreshToken } =
         await this.getAccessAndRefreshTokens(payload);
       await this.updateRefreshToken(newUser.id, refreshToken);
-      await this.setUpAiraloToken(user.id);
+      await this.setUpAiraloToken(newUser.id);
       return { accessToken, refreshToken };
     } catch (e) {
       throw new Error(e);
