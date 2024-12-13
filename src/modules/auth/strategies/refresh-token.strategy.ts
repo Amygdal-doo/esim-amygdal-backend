@@ -37,6 +37,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
     // Update user props if changes have been made ß
     payload.role = user?.role;
     payload.email = user?.email;
+    payload.isEmailConfirmed = user?.isEmailConfirmed;
     payload.username = user?.username;
     payload.loginType = user?.loginType;
 

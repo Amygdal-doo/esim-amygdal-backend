@@ -3,10 +3,15 @@ import { LoginType, Prisma, Role } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { UpdateUserInfoDto } from '../dtos/requests/update-user-info.dto';
 import { LoggedUserInfoDto } from 'src/modules/auth/dtos/logged-user-info.dto';
+import { IResetPasswordToken } from 'src/modules/auth/interfaces/reset-password-token.interface';
+import { UserResetPasswordTokenService } from './user-reset-password-token.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly resetPasswordTokenService: UserResetPasswordTokenService,
+  ) {}
 
   async create(data: Prisma.UserCreateInput) {
     if (!data.role) data.role = Role.USER;
@@ -122,5 +127,27 @@ export class UserService {
     const updateUser = await this.databaseService.user.update(update);
     return updateUser;
     // await this.databaseService.$transaction([updateUser]);
+  }
+
+  async markEmailAsConfirmed(email: string) {
+    return this.databaseService.user.update({
+      where: { email },
+      data: { isEmailConfirmed: true },
+    });
+  }
+
+  async getUserByEmail(email: string) {
+    return this.databaseService.user.findUnique({ where: { email } });
+  }
+  async setUserResetPasswordToken(id: string, data: IResetPasswordToken) {
+    const passwordToken =
+      await this.databaseService.resetPasswordToken.findUnique({
+        where: {
+          userId: id,
+        },
+      });
+    if (!passwordToken) return this.resetPasswordTokenService.create(id, data);
+
+    return this.resetPasswordTokenService.update(id, data);
   }
 }

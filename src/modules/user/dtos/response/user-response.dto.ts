@@ -58,6 +58,15 @@ export class UserResponseDto implements User {
   })
   @Expose()
   loginType: LoginType;
+
+  @ApiProperty({
+    type: Boolean,
+    description: 'Email confirmation status of the user',
+    example: true,
+  })
+  @Expose()
+  isEmailConfirmed: boolean;
+
   @ApiProperty({
     type: Date,
     description: 'Creation date of the user record',
