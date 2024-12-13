@@ -27,6 +27,14 @@ import { UserRefreshTokenService } from '../user/services/user-refresh-token.ser
 import { UserAiraloTokenService } from '../user/services/user-airalo-token.service';
 import { encryptToken } from 'src/common/helpers/encrypt.helper';
 import { ChangeEmailDto } from './dtos/change-email.dto';
+import { ForgotPasswordDto } from './dtos/forgot-password.dto';
+import {
+  generateRandomToken,
+  hashToken,
+  hashTokenWithExpiry,
+} from 'src/common/utilities/hash-token.util';
+import { SendgridService } from '../sendgrid/sendgrid.service';
+import { UserResetPasswordTokenService } from '../user/services/user-reset-password-token.service';
 
 @Injectable()
 export class AuthService {
@@ -37,6 +45,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private configService: ConfigService,
     private readonly aireloService: AiraloService,
+    private readonly sendgridService: SendgridService,
+    private readonly resetPasswordTokenService: UserResetPasswordTokenService,
   ) {}
   async getAccessAndRefreshTokens(
     payload: LoggedUserInfoDto,
@@ -115,6 +125,7 @@ export class AuthService {
       email: user.email,
       username: user.username,
       role: user.role,
+      isEmailConfirmed: user.isEmailConfirmed,
       loginType: user.loginType,
     };
   }
@@ -149,6 +160,7 @@ export class AuthService {
         username: user.username,
         role: user.role,
         email: user.email,
+        isEmailConfirmed: user.isEmailConfirmed,
         loginType: user.loginType,
       };
       const { accessToken, refreshToken } =
@@ -179,6 +191,7 @@ export class AuthService {
         username: newUser.username,
         role: newUser.role,
         email: newUser.email,
+        isEmailConfirmed: newUser.isEmailConfirmed,
         loginType: newUser.loginType,
       };
       const { accessToken, refreshToken } =
@@ -205,6 +218,7 @@ export class AuthService {
         username: user.username,
         role: user.role,
         email: user.email,
+        isEmailConfirmed: user.isEmailConfirmed,
         loginType: user.loginType,
       };
       const { accessToken, refreshToken } =
@@ -236,6 +250,7 @@ export class AuthService {
         username: newUser.username,
         role: newUser.role,
         email: newUser.email,
+        isEmailConfirmed: newUser.isEmailConfirmed,
         loginType: newUser.loginType,
       };
       const { accessToken, refreshToken } =
@@ -358,6 +373,7 @@ export class AuthService {
         username: user.username,
         role: user.role,
         email: user.email,
+        isEmailConfirmed: user.isEmailConfirmed,
         loginType: user.loginType,
       };
       const { accessToken, refreshToken } =
@@ -389,6 +405,7 @@ export class AuthService {
         username: newUser.username,
         role: newUser.role,
         email: newUser.email,
+        isEmailConfirmed: newUser.isEmailConfirmed,
         loginType: newUser.loginType,
       };
       const { accessToken, refreshToken } =
@@ -399,5 +416,47 @@ export class AuthService {
     } catch (e) {
       throw new Error(e);
     }
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const user = await this.userService.getUserByEmail(forgotPasswordDto.email);
+    if (!user) throw new UserNotFoundException();
+
+    if (user.googleId || user.microsoftId || user.appleId)
+      if (!user.password) {
+        throw new ForbiddenException(
+          'You are using social login and your account does not have a password,cant change the password',
+        );
+      }
+
+    const token = generateRandomToken();
+    const hashedToken = hashTokenWithExpiry(token);
+
+    await this.userService.setUserResetPasswordToken(user.id, {
+      expiresAt: hashedToken.expiresAt,
+      tokenHash: hashedToken.tokenHash,
+    });
+    await this.sendgridService.sendResetPasswordToken({
+      to: forgotPasswordDto.email,
+      token,
+    });
+  }
+
+  async resetPassword(newPassword: string, token: string) {
+    const hashedToken = hashToken(token);
+    const tokenRecord =
+      await this.resetPasswordTokenService.getuniqueToken(hashedToken);
+    console.log(tokenRecord);
+
+    if (!tokenRecord || tokenRecord.expiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired token');
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+    await this.userService.updateUserById(tokenRecord.user.id, {
+      password: hashedPassword,
+    });
+    await this.resetPasswordTokenService.deleteById(tokenRecord.id);
+    return { message: 'Password is reset' };
   }
 }

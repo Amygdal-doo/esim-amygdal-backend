@@ -5,6 +5,7 @@ import { UserRefreshTokenService } from './services/user-refresh-token.service';
 import { UserAiraloTokenService } from './services/user-airalo-token.service';
 import { UserProfileService } from './services/user-profile.service';
 import { UserProfileController } from './controllers/profile.controller';
+import { UserResetPasswordTokenService } from './services/user-reset-password-token.service';
 
 @Module({
   controllers: [UserController, UserProfileController],
@@ -13,7 +14,14 @@ import { UserProfileController } from './controllers/profile.controller';
     UserRefreshTokenService,
     UserAiraloTokenService,
     UserProfileService,
+    UserResetPasswordTokenService,
   ],
-  exports: [UserService, UserRefreshTokenService, UserAiraloTokenService],
+  exports: [
+    UserService,
+    UserRefreshTokenService,
+    UserAiraloTokenService,
+    UserProfileService,
+    UserResetPasswordTokenService,
+  ],
 })
 export class UserModule {}

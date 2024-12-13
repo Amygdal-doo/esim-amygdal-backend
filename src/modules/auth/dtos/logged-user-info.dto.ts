@@ -5,7 +5,7 @@ export class LoggedUserInfoDto {
   email: string;
   role: Role;
   username: string;
-  // isEmailConfirmed: boolean;
+  isEmailConfirmed: boolean;
   // archived: boolean;
   loginType: LoginType;
 }

@@ -4,7 +4,9 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
+  Put,
   Req,
   UseFilters,
   UseGuards,
@@ -37,18 +39,26 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { AccessTokenGuard } from './guards/access-token.guard';
-import { ChangePasswordDto } from './dtos/change-password.dto';
+import {
+  ChangePasswordDto,
+  ResetPasswordDto,
+} from './dtos/change-password.dto';
 import { LoginResponseDto } from './dtos/responses/login-response.dto';
 import { PasswordChangedSuccesfullyResponseDto } from './dtos/responses/password-changed-succesfully.response.dto';
 import { AppleAuthGuard } from './guards/apple-auth.guard';
 import { MicrosoftAuthGuard } from './guards/microsoft-auth.guard';
 import { ChangeEmailDto } from './dtos/change-email.dto';
 import { EmailChangedSuccesfullyResponseDto } from './dtos/responses/email-changed.response.dto';
+import { SendgridService } from '../sendgrid/sendgrid.service';
+import { ForgotPasswordDto } from './dtos/forgot-password.dto';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' })
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly sendgridService: SendgridService,
+  ) {}
 
   // LOCAL REGISTER AND LOGIN
   @Post('login')
@@ -78,6 +88,10 @@ export class AuthController {
   async register(@Body() localRegisterBodyDto: LocalRegisterBodyDto) {
     const user = await this.authService.register(localRegisterBodyDto);
     // send email
+    this.sendgridService.sendVerificationLink(
+      localRegisterBodyDto.email,
+      localRegisterBodyDto.firstName,
+    );
     return user;
   }
 
@@ -206,5 +220,22 @@ export class AuthController {
       loggedUserInfoDto,
       changeEmailDto,
     );
+  }
+
+  @Post('forgot-password')
+  @ApiBody({ type: ForgotPasswordDto })
+  @UseFilters(new HttpExceptionFilter())
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto);
+  }
+
+  @Put('forgot-password/:token')
+  @ApiBody({ type: ResetPasswordDto })
+  @UseFilters(new HttpExceptionFilter())
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+    @Param('token') token: string,
+  ) {
+    return this.authService.resetPassword(resetPasswordDto.newPassword, token);
   }
 }

@@ -11,6 +11,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AppleStrategy } from './strategies/apple.strategy';
 import { MicrosoftStrategy } from './strategies/microsoft.strategy';
 import { AiraloModule } from '../airalo/airalo.module';
+import { SendgridModule } from '../sendgrid/sendgrid.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AiraloModule } from '../airalo/airalo.module';
     },*/
     }),
     AiraloModule,
+    SendgridModule,
   ],
   controllers: [AuthController],
   providers: [

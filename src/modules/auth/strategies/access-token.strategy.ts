@@ -32,6 +32,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     // Update user props if changes have been made
     payload.role = user?.role;
     payload.email = user?.email;
+    payload.isEmailConfirmed = user?.isEmailConfirmed;
     payload.username = user?.username;
     payload.loginType = user?.loginType;
 
