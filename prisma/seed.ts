@@ -22,6 +22,7 @@ async function main() {
       role: Role.SUPER_ADMIN,
       password: DEV_PASSWORD,
       loginType: LoginType.CREDENTIALS,
+      isEmailConfirmed: true,
     },
   });
   console.log('User created with id: ', SUPER_ADMIN.id);
@@ -38,6 +39,7 @@ async function main() {
       password:
         'ba7b868538a581f70906797bc1f213b1:0cb38a4e7a850f842ee959452dc5200e5b1b0e3ae82dd380d0f5ee47b70dc67a039282662875196c2ea822647220ccfb3185bb0dbae46f58137376708cc46633',
       loginType: LoginType.CREDENTIALS,
+      isEmailConfirmed: true,
     },
   });
 
@@ -54,6 +56,7 @@ async function main() {
       role: Role.SUPER_ADMIN,
       password: DEV_PASSWORD,
       loginType: LoginType.CREDENTIALS,
+      isEmailConfirmed: true,
     },
   });
 
@@ -69,6 +72,7 @@ async function main() {
       role: Role.USER,
       password: DEV_PASSWORD,
       loginType: LoginType.CREDENTIALS,
+      isEmailConfirmed: true,
     },
   });
 
