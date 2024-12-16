@@ -5,7 +5,7 @@ import { AiraloController } from './controllers/airalo.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from '../user/user.module';
 import { AiraloEsimsService } from './services/airalo-esims.service';
-import { AiraloOrdersService } from './services/airalo-orders.service';
+import { AiraloOrdersApiService } from './services/airalo-orders.service';
 import { AiraloPackagesService } from './services/airalo-packages.service';
 import { AiraloEsimsController } from './controllers/airalo-esims.controller';
 import { AiraloPackagesController } from './controllers/airalo-packages.controller';
@@ -26,7 +26,7 @@ import { AiraloOrdersController } from './controllers/airalo-orders.controller';
   providers: [
     AiraloService,
     AiraloEsimsService,
-    AiraloOrdersService,
+    AiraloOrdersApiService,
     AiraloPackagesService,
   ],
   controllers: [
@@ -38,7 +38,7 @@ import { AiraloOrdersController } from './controllers/airalo-orders.controller';
   exports: [
     AiraloService,
     AiraloEsimsService,
-    AiraloOrdersService,
+    AiraloOrdersApiService,
     AiraloPackagesService,
   ],
 })

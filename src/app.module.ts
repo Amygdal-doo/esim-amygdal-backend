@@ -10,9 +10,10 @@ import { UserModule } from './modules/user/user.module';
 import { DatabaseModule } from './database/database.module';
 import { AiraloModule } from './modules/airalo/airalo.module';
 import { EsimsModule } from './modules/esims/esims.module';
-import { OrdersModule } from './modules/orders/orders.module';
+import { AiraloOrdersModule } from './modules/airalo_orders/airalo_orders.module';
 import { CountryModule } from './modules/country/country.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { MonriOrdersModule } from './modules/monri_orders/monri_orders.module';
 
 @Module({
   imports: [
@@ -25,9 +26,10 @@ import { PaymentModule } from './modules/payment/payment.module';
     UserModule,
     AiraloModule,
     EsimsModule,
-    OrdersModule,
+    AiraloOrdersModule,
     CountryModule,
     PaymentModule,
+    MonriOrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

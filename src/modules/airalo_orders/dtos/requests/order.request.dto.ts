@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Prisma } from '@prisma/client';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { OrderStatus, Prisma } from '@prisma/client';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class CreateOrderRequestDto implements Prisma.OrderCreateInput {
+export class CreateOrderRequestDto implements Prisma.AiraloOrderCreateInput {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
@@ -19,9 +19,9 @@ export class CreateOrderRequestDto implements Prisma.OrderCreateInput {
   orderCreatedAt: string;
 
   @ApiProperty()
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  quantity: string;
+  quantity: number;
 
   @ApiProperty()
   @IsString()
@@ -36,5 +36,12 @@ export class CreateOrderRequestDto implements Prisma.OrderCreateInput {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  user: Prisma.UserCreateNestedOneWithoutOrderInput;
+  user: Prisma.UserCreateNestedOneWithoutAiralOrdersInput;
+
+  @ApiProperty()
+  @IsEnum(OrderStatus)
+  @IsNotEmpty()
+  status: OrderStatus;
+
+  transaction: Prisma.TransactionCreateNestedOneWithoutAiraloOrderInput;
 }

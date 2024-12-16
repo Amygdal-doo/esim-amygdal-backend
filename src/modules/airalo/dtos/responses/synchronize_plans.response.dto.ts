@@ -1,5 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 class ImageDto {
   @ApiProperty({ description: 'Image width', example: 132 })
@@ -46,12 +53,16 @@ class CoverageDto {
   networks: NetworkDto[];
 }
 
-class PackageDto {
+export class PackageDto {
   @ApiProperty({ description: 'Package ID', example: 'change-7days-1gb' })
+  @IsString()
+  @IsNotEmpty()
   @Expose()
   id: string;
 
   @ApiProperty({ description: 'Package type', example: 'sim' })
+  @IsString()
+  @IsNotEmpty()
   @Expose()
   type: string;
 
@@ -61,10 +72,14 @@ class PackageDto {
 
   @ApiProperty({ description: 'Data amount in MB', example: 1024 })
   @Expose()
+  @IsNumber()
+  @IsNotEmpty()
   amount: number;
 
   @ApiProperty({ description: 'Validity in days', example: 7 })
   @Expose()
+  @IsNumber()
+  @IsNotEmpty()
   day: number;
 
   @ApiProperty({
@@ -72,6 +87,8 @@ class PackageDto {
     example: false,
   })
   @Expose()
+  // @IsNumber()
+  @IsBoolean()
   is_unlimited: boolean;
 
   @ApiProperty({
@@ -79,10 +96,14 @@ class PackageDto {
     example: '1 GB - 7 Days',
   })
   @Expose()
+  @IsString()
+  @IsNotEmpty()
   title: string;
 
   @ApiProperty({ description: 'Data description', example: '1 GB' })
   @Expose()
+  @IsString()
+  @IsNotEmpty()
   data: string;
 
   @ApiProperty({
@@ -90,15 +111,21 @@ class PackageDto {
     example: "This eSIM doesn't come with a phone number.",
   })
   @Expose()
+  @IsString()
+  @IsNotEmpty()
   short_info: string;
 
-  @ApiProperty({ description: 'Included voice minutes', example: 100 })
+  @ApiPropertyOptional({ description: 'Included voice minutes', example: 100 })
   @Expose()
-  voice: number;
+  @IsNumber()
+  @IsOptional()
+  voice: number | null;
 
   @ApiProperty({ description: 'Included text messages', example: 100 })
   @Expose()
-  text: number;
+  @IsNumber()
+  @IsOptional()
+  text: number | null;
 }
 
 class OperatorDto {

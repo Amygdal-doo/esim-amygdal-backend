@@ -18,13 +18,12 @@ import { AxiosResponse } from 'axios';
 import { plainToInstance } from 'class-transformer';
 import { AIRALO_ENDPOINTS } from '../constants/url.constants';
 import { CreateOrderDto } from '../dtos/requests/create-order.request.dto';
-import {
-  CreateOrderResponseDto,
-  DataResponseDto,
-} from '../dtos/responses/create-order.response.dto';
+import { CreateOrderResponseDto } from '../dtos/responses/create-order.response.dto';
+import { SubmitOrderResponseDto } from '../dtos/responses/submit-order.respomse';
+import { ISubmitOrder } from '../interfaces/submit-order.interface';
 
 @Injectable()
-export class AiraloOrdersService {
+export class AiraloOrdersApiService {
   constructor(
     private readonly httpService: HttpService,
     private readonly config: ConfigService,
@@ -144,12 +143,10 @@ export class AiraloOrdersService {
 
   // async create(loggedUser: LoggedUserInfoDto, createOrderDto: CreateOrderDto) {}
   async create(
-    loggedUser: LoggedUserInfoDto,
-    createOrderDto: CreateOrderDto,
-  ): Promise<DataResponseDto> {
-    const decodedToken = await this.airaloService.getOrRefreshToken(
-      loggedUser.id,
-    );
+    userId: string,
+    createOrderDto: ISubmitOrder,
+  ): Promise<SubmitOrderResponseDto> {
+    const decodedToken = await this.airaloService.getOrRefreshToken(userId);
 
     try {
       // Prepare form-data body
@@ -170,6 +167,10 @@ export class AiraloOrdersService {
         createOrderDto.sharing_option.forEach((option) =>
           formData.append('sharing_option[]', option),
         );
+        formData.append(
+          'brand_settings_name',
+          createOrderDto.brand_settings_name,
+        );
       }
       if (createOrderDto.copy_address) {
         createOrderDto.copy_address.forEach((email) =>
@@ -188,6 +189,7 @@ export class AiraloOrdersService {
               'Content-Type': 'application/x-www-form-urlencoded',
               Authorization: `Bearer ${decodedToken}`,
             },
+            // Send POST request to create the order
           },
         ),
       );
@@ -201,20 +203,37 @@ export class AiraloOrdersService {
       // );
       console.log(2132, response.data);
 
-      return response.data.data;
+      return {
+        status: 200,
+        message: 'success',
+        data: response.data.data,
+      };
+      // Return the data from the response
     } catch (err) {
       console.error('Error creating order:', err.response);
       if (err.response?.status === 422) {
-        throw new HttpException(err.response.data, 422);
+        return {
+          status: 422,
+          message: err.response.data.message,
+          error: err.response.data,
+        };
+        // throw new HttpException(err.response.data, 422);
       }
-      throw new InternalServerErrorException();
+      return {
+        status: 500,
+        message: err.response.data.message,
+        error: err.response.data,
+      };
+      // throw new InternalServerErrorException();
     }
   }
 
+  // Handle validation error
   async createOrder(
     loggedUser: LoggedUserInfoDto,
     createOrderDto: CreateOrderDto,
   ) {
-    return this.create(loggedUser, createOrderDto);
+    return this.create(loggedUser.id, createOrderDto);
   }
+  // Handle server error
 }
