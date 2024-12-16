@@ -15,7 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AIRALO_PATH } from '../constants/path.constant';
-import { AiraloOrdersService } from '../services/airalo-orders.service';
+import { AiraloOrdersApiService } from '../services/airalo-orders.service';
 import { LoggedUserInfoDto } from 'src/modules/auth/dtos/logged-user-info.dto';
 import { UserLogged } from 'src/modules/auth/decorators/user.decorator';
 import { HttpExceptionFilter } from 'src/common/exceptions/http-exception.filter';
@@ -33,7 +33,7 @@ import {
 @ApiTags('Airalo Orders')
 @Controller({ path: `${AIRALO_PATH}/orders`, version: '1' })
 export class AiraloOrdersController {
-  constructor(private readonly airaloOrdersService: AiraloOrdersService) {}
+  constructor(private readonly airaloOrdersService: AiraloOrdersApiService) {}
 
   @Get()
   @Roles(Role.SUPER_ADMIN)

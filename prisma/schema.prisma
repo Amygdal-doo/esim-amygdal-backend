@@ -20,6 +20,12 @@ enum Role {
   SUPER_ADMIN
 }
 
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
 model RefreshToken {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @unique @db.Uuid
@@ -47,9 +53,12 @@ model User {
   refreshToken   RefreshToken?
     resetPasswordToken     ResetPasswordToken?
   airaloApiToken AiraloToken?
-  order          Order[]
+  airalOrders    AiraloOrder[]
+  monriOrders    MonriOrder[]
+  transactions   Transaction[]
   esim           Esim[]
   profile        Profile?
+  wallet         Wallet?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -61,14 +70,15 @@ model User {
 model Profile {
   id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   newsletter  Boolean @default(false)
-  location    String? 
-  phoneNumber String?  @db.VarChar(50)
-  userId    String   @unique @db.Uuid
+  location    String?
+  phoneNumber String? @db.VarChar(50)
+  userId      String  @unique @db.Uuid
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // language String
   // currency String
-    @@index([userId], map: "user_Id_profile_Index")
+  @@index([userId], map: "user_Id_profile_Index")
 }
 
 model AiraloToken {
@@ -83,33 +93,60 @@ model AiraloToken {
   @@index([userId], map: "user_Id_airaloToken_Index")
 }
 
-model Order {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId         String   @db.Uuid
-  orderId        Int
-  code           String
-  orderCreatedAt String
-  quantity       String
-  packageId      String
-  esim           Esim[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model AiraloOrder {
+  id             String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String      @db.Uuid
+  orderId        Int? // airalo orderId
+  code           String?
+  orderCreatedAt String?
+  quantity       Int
+  packageId      String // airalo package id
+  transactionId  String      @unique @db.Uuid // Nullable, linked after successful payment
+  status         OrderStatus
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  esim        Esim[]
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MonriOrder {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // order_number
+  userId        String      @db.Uuid
+  orderId       Int? // monri payment id 
+  currency      String
+  paymentId     Int?
+  amount        Decimal     @db.Money
+  status        OrderStatus
+  response      Json?
+  // code           String
+  quantity      Int
+  packageId     String // airalo package id
+  transactionId String      @unique @db.Uuid
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orderCreatedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model Esim {
   id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String @db.Uuid
-  orderId   String @db.Uuid
+  orderId   String @db.Uuid // airalo order id
   qrcode    String
   qrcodeUrl String
-  esimId    Int    @unique
-  iccid     String @unique
+  esimId    Int    @unique // airalo sim id
+  iccid     String @unique // airalo iccid
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order     AiraloOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model Image {
@@ -152,6 +189,7 @@ model Currency {
   name      String
   symbol    String?
   countries Country[]
+  wallet    Wallet[]
   // shippingMethods ShippingMethod[]
 
   @@index(fields: [code])
@@ -178,4 +216,35 @@ model ResetPasswordToken {
 
   @@index([userId])
   @@map("ResetPasswordToken")
+}
+model Wallet {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  balance    Decimal @db.Money
+  currencyId String  @db.Uuid
+  userId     String  @unique @db.Uuid
+
+  user     User     @relation(fields: [userId], references: [id])
+  currency Currency @relation(fields: [currencyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index(fields: [userId])
+}
+
+model Transaction {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  amount      Decimal      @db.Money //Float // Amount added or deducted
+  description String? // Optional description
+  // type          TransactionType // CREDIT or DEBIT
+  userId      String       @db.Uuid
+  user        User         @relation(fields: [userId], references: [id])
+  status      OrderStatus
+  monriOrder  MonriOrder?
+  airaloOrder AiraloOrder?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index(fields: [userId])
 }
