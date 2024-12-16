@@ -177,7 +177,6 @@ export class AiraloOrdersApiService {
           formData.append('copy_address[]', email),
         );
       }
-      console.log(122);
 
       const response = await lastValueFrom(
         this.httpService.post<CreateOrderResponseDto>(
@@ -201,7 +200,8 @@ export class AiraloOrdersApiService {
       //     enableCircularCheck: true,
       //   },
       // );
-      console.log(2132, response.data);
+
+      // console.log(2132, response.data);
 
       return {
         status: 200,
