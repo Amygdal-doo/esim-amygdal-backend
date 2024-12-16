@@ -20,12 +20,6 @@ enum Role {
   SUPER_ADMIN
 }
 
-enum TransactionStatus {
-  PENDING
-  SUCCESS
-  FAILED
-}
-
 enum OrderStatus {
   PENDING
   COMPLETED
@@ -57,7 +51,8 @@ model User {
   password       String?
   refreshToken   RefreshToken?
   airaloApiToken AiraloToken?
-  order          Order[]
+  airalOrders    AiraloOrder[]
+  monriOrders    MonriOrder[]
   transactions   Transaction[]
   esim           Esim[]
   profile        Profile?
@@ -96,18 +91,45 @@ model AiraloToken {
   @@index([userId], map: "user_Id_airaloToken_Index")
 }
 
-model Order {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId         String   @db.Uuid
-  orderId        Int    // airalo orderId
-  code           String
-  orderCreatedAt String
-  quantity       String
-  packageId      String  // airalo package id
-  esim           Esim[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model AiraloOrder {
+  id             String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String      @db.Uuid
+  orderId        Int? // airalo orderId
+  code           String?
+  orderCreatedAt String?
+  quantity       Int
+  packageId      String // airalo package id
+  transactionId  String      @unique @db.Uuid // Nullable, linked after successful payment
+  status         OrderStatus
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  esim        Esim[]
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MonriOrder {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // order_number
+  userId        String      @db.Uuid
+  orderId       Int? // monri payment id 
+  currency      String
+  paymentId     Int?
+  amount        Decimal     @db.Money
+  status        OrderStatus
+  response      Json?
+  // code           String
+  quantity      Int
+  packageId     String // airalo package id
+  transactionId String      @unique @db.Uuid
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orderCreatedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model Esim {
@@ -119,10 +141,10 @@ model Esim {
   esimId    Int    @unique // airalo sim id
   iccid     String @unique // airalo iccid
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order     AiraloOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model Image {
@@ -199,17 +221,18 @@ model Wallet {
 }
 
 model Transaction {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String @db.Uuid
-  user         User              @relation(fields: [userId], references: [id])
-  amount       Decimal @db.Money //Float // Amount added or deducted
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  amount      Decimal      @db.Money //Float // Amount added or deducted
+  description String? // Optional description
   // type          TransactionType // CREDIT or DEBIT
-  status       TransactionStatus // PENDING, SUCCESS, or FAILED
-  monriOrderId String? // Reference to Monri payment gateway order ID
-  description  String? // Optional description
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  userId      String       @db.Uuid
+  user        User         @relation(fields: [userId], references: [id])
+  status      OrderStatus
+  monriOrder  MonriOrder?
+  airaloOrder AiraloOrder?
 
-  @@index(fields:[userId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  @@index(fields: [userId])
 }
