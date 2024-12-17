@@ -3,6 +3,7 @@ import {
   HttpException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AxiosError, AxiosResponse } from 'axios';
@@ -11,12 +12,17 @@ import { catchError, firstValueFrom, lastValueFrom } from 'rxjs';
 import { LoggedUserInfoDto } from 'src/modules/auth/dtos/logged-user-info.dto';
 import { UserAiraloTokenService } from 'src/modules/user/services/user-airalo-token.service';
 import { AIRALO_ENDPOINTS } from '../constants/url.constants';
-import { GetPackagesDto } from '../dtos/requests/packages.request.dto';
+import {
+  GetPackageDto,
+  GetPackagesDto,
+} from '../dtos/requests/packages.request.dto';
 import {
   CountryDto,
+  PackageDto,
   SynchronizePlansResponseDto,
 } from '../dtos/responses/synchronize_plans.response.dto';
 import { AiraloService } from './airalo.service';
+import { findPackageById } from 'src/common/helpers/package-finder.helper';
 
 @Injectable()
 export class AiraloPackagesService {
@@ -75,6 +81,20 @@ export class AiraloPackagesService {
       }
       throw new InternalServerErrorException();
     }
+  }
+
+  async getPackageById(
+    loggedUser: LoggedUserInfoDto,
+    query: GetPackageDto,
+  ): Promise<PackageDto> {
+    const { id, ...rest } = query;
+    const countries = await this.getPackages(loggedUser, rest);
+
+    const specificPackage = findPackageById(countries, id);
+
+    if (!specificPackage) throw new NotFoundException();
+
+    return specificPackage;
   }
 
   async getPlansV2(): Promise<CountryDto[]> {

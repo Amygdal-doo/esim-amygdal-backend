@@ -14,8 +14,14 @@ import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { UserLogged } from 'src/modules/auth/decorators/user.decorator';
 import { LoggedUserInfoDto } from 'src/modules/auth/dtos/logged-user-info.dto';
 import { AccessTokenGuard } from 'src/modules/auth/guards/access-token.guard';
-import { GetPackagesDto } from '../dtos/requests/packages.request.dto';
-import { CountryDto } from '../dtos/responses/synchronize_plans.response.dto';
+import {
+  GetPackageDto,
+  GetPackagesDto,
+} from '../dtos/requests/packages.request.dto';
+import {
+  CountryDto,
+  PackageDto,
+} from '../dtos/responses/synchronize_plans.response.dto';
 
 @ApiTags(`Airalo Packages`)
 @Controller({ path: `${AIRALO_PATH}/packages`, version: '1' })
@@ -46,6 +52,35 @@ export class AiraloPackagesController {
     @Query() query: GetPackagesDto,
   ) {
     return await this.airaloPackagesService.getPackages(
+      loggedUserInfoDto,
+      query,
+    );
+  }
+
+  @Get('/id')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('Access Token')
+  @UseFilters(new HttpExceptionFilter())
+  @ApiOperation({ summary: 'Get package by id' })
+  @Serialize(PackageDto)
+  @ApiOkResponse({ type: PackageDto })
+  @ApiForbiddenResponse()
+  @ApiUnprocessableEntityResponse({
+    description: 'Invalid credentials',
+    example: {
+      data: {
+        client_id: 'The limit must be an integer.',
+      },
+      meta: {
+        message: 'the parameter is invalid',
+      },
+    },
+  })
+  async getPackage(
+    @UserLogged() loggedUserInfoDto: LoggedUserInfoDto,
+    @Query() query: GetPackageDto,
+  ) {
+    return await this.airaloPackagesService.getPackageById(
       loggedUserInfoDto,
       query,
     );

@@ -1,6 +1,13 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsOptional, IsString, IsIn, IsNumber, Min } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsIn,
+  IsNumber,
+  Min,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class GetPackagesDto {
   @ApiPropertyOptional({
@@ -50,4 +57,14 @@ export class GetPackagesDto {
   @IsString()
   @IsIn(['topup'])
   include?: 'topup';
+}
+
+export class GetPackageDto extends GetPackagesDto {
+  @ApiProperty({
+    description: 'Package ID',
+    example: 'change-7days-1gb',
+  })
+  @IsNotEmpty()
+  @IsString()
+  id: string;
 }
