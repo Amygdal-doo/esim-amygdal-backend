@@ -126,6 +126,27 @@ export class PackageDto {
   @IsNumber()
   @IsOptional()
   text: number | null;
+
+  @ApiProperty({
+    description: 'QR Code installation guide',
+    example: 'https://airalo.com/installation-guide',
+  })
+  @IsString()
+  @Expose()
+  qr_installation: string;
+
+  @ApiProperty({
+    description: 'Manual installation guide',
+    example: 'https://airalo.com/installation-guide',
+  })
+  @IsString()
+  @Expose()
+  manual_installation: string;
+
+  @ApiProperty({ description: 'Net price of the package', example: 4.5 })
+  @Expose()
+  @IsNumber()
+  net_price: number;
 }
 
 class OperatorDto {
