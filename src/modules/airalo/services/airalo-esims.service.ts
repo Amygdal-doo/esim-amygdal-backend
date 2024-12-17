@@ -21,6 +21,10 @@ import {
 } from '../dtos/responses/sims.response.dto';
 import { AiraloService } from './airalo.service';
 import { InstallationInstructionsResponseDto } from '../dtos/responses/instructions.response.dto';
+import {
+  DataDto,
+  SimStatusResponseDto,
+} from '../dtos/responses/sim-status.response.dto';
 
 @Injectable()
 export class AiraloEsimsService {
@@ -181,6 +185,41 @@ export class AiraloEsimsService {
       }
       throw new InternalServerErrorException();
       // throw new HttpException(err.response.data, err.response.status);
+    }
+  }
+
+  async getSimStatus(userId: string, sim_iccid: string): Promise<DataDto> {
+    const decodedToken = await this.airaloService.getOrRefreshToken(userId);
+
+    try {
+      const response = await lastValueFrom(
+        this.httpService.get<AxiosResponse<SimStatusResponseDto>>(
+          `${this.config.get<string>('AIRALO_URL_SANDBOX')}/v2${AIRALO_ENDPOINTS.SIMS}/${sim_iccid}${AIRALO_ENDPOINTS.USAGE}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Bearer ${decodedToken}`,
+            },
+          },
+        ),
+      );
+
+      const parsedResponse = plainToInstance(
+        SimStatusResponseDto,
+        response.data,
+        {
+          enableCircularCheck: true,
+        },
+      );
+
+      return parsedResponse.data; // Assuming parsedResponse.data is a CountryDto[]
+    } catch (err) {
+      console.error('Error fetching esim data info:', err?.response);
+      if (err.response?.status === 422) {
+        throw new HttpException(err.response.data, 422);
+      }
+      throw new InternalServerErrorException();
     }
   }
 }

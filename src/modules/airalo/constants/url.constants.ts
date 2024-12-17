@@ -5,6 +5,7 @@ export const AIRALO_ENDPOINTS = {
   INSTRUCTIONS: '/instructions',
   SIMS: '/sims',
   ORDERS: '/orders',
+  USAGE: '/usage',
   //   CATALOG: '/catalog',
   //   CATALOG_V2: '/catalog/v2',
 };

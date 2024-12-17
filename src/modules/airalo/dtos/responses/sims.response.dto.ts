@@ -196,8 +196,12 @@ export class EsimDto {
   @IsObject()
   simable?: SimableDto;
 }
-export class metaDto {
-  @ApiProperty({ description: 'message', type: String })
+export class MetaDto {
+  @ApiProperty({
+    description: 'Message indicating the result of the API call.',
+    type: String,
+    example: 'api.success',
+  })
   @Expose()
   message: string;
 }
@@ -213,7 +217,7 @@ export class SimsResponseDto {
   @Expose()
   data: EsimDto;
 
-  @ApiProperty({ description: 'message', type: metaDto })
+  @ApiProperty({ description: 'message', type: MetaDto })
   @Expose()
-  meta: metaDto;
+  meta: MetaDto;
 }
