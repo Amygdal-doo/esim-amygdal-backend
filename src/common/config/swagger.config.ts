@@ -2,7 +2,7 @@ import { DocumentBuilder } from '@nestjs/swagger';
 import * as packageJSON from '../../../package.json';
 
 export const configSwagger = new DocumentBuilder()
-  .setTitle('SMS app')
+  .setTitle('Welcome to esim app API Documentation')
   .setDescription('Swagger esim app')
   .setVersion(`API version: ${packageJSON.version}`)
   .addTag('esim')
