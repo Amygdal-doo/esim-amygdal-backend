@@ -1,12 +1,10 @@
-import {
-  CountryDto,
-  PackageDto,
-} from 'src/modules/airalo/dtos/responses/synchronize_plans.response.dto';
+import { PackageResponseDto } from 'src/modules/airalo/dtos/responses/package.response';
+import { CountryDto } from 'src/modules/airalo/dtos/responses/synchronize_plans.response.dto';
 
 export function findPackageById(
   countries: CountryDto[],
   packageId: string,
-): PackageDto | null {
+): PackageResponseDto | null {
   for (const country of countries) {
     for (const operator of country.operators) {
       const foundPackage = operator.packages.find(
@@ -14,7 +12,11 @@ export function findPackageById(
       );
 
       if (foundPackage) {
-        return foundPackage;
+        // const { packages, ...rest } = operator;
+        return {
+          ...foundPackage,
+          operator,
+        };
       }
     }
   }

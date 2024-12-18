@@ -18,10 +18,8 @@ import {
   GetPackageDto,
   GetPackagesDto,
 } from '../dtos/requests/packages.request.dto';
-import {
-  CountryDto,
-  PackageDto,
-} from '../dtos/responses/synchronize_plans.response.dto';
+import { CountryDto } from '../dtos/responses/synchronize_plans.response.dto';
+import { PackageResponseDto } from '../dtos/responses/package.response';
 
 @ApiTags(`Airalo Packages`)
 @Controller({ path: `${AIRALO_PATH}/packages`, version: '1' })
@@ -62,8 +60,8 @@ export class AiraloPackagesController {
   @ApiBearerAuth('Access Token')
   @UseFilters(new HttpExceptionFilter())
   @ApiOperation({ summary: 'Get package by id' })
-  @Serialize(PackageDto)
-  @ApiOkResponse({ type: PackageDto })
+  @Serialize(PackageResponseDto)
+  @ApiOkResponse({ type: PackageResponseDto })
   @ApiForbiddenResponse()
   @ApiUnprocessableEntityResponse({
     description: 'Invalid credentials',

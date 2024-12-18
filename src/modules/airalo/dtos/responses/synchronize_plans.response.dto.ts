@@ -149,7 +149,7 @@ export class PackageDto {
   net_price: number;
 }
 
-class OperatorDto {
+export class OperatorDto {
   @ApiProperty({ description: 'Operator ID', example: 569 })
   @Expose()
   id: number;

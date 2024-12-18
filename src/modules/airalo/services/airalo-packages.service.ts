@@ -18,11 +18,11 @@ import {
 } from '../dtos/requests/packages.request.dto';
 import {
   CountryDto,
-  PackageDto,
   SynchronizePlansResponseDto,
 } from '../dtos/responses/synchronize_plans.response.dto';
 import { AiraloService } from './airalo.service';
 import { findPackageById } from 'src/common/helpers/package-finder.helper';
+import { PackageResponseDto } from '../dtos/responses/package.response';
 
 @Injectable()
 export class AiraloPackagesService {
@@ -86,7 +86,7 @@ export class AiraloPackagesService {
   async getPackageById(
     loggedUser: LoggedUserInfoDto,
     query: GetPackageDto,
-  ): Promise<PackageDto> {
+  ): Promise<PackageResponseDto> {
     const { id, ...rest } = query;
     const countries = await this.getPackages(loggedUser, rest);
 
