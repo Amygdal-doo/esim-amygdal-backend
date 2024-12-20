@@ -1,4 +1,12 @@
-import { Controller, Get, Param, UseFilters, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
 import { AiraloOrdersService } from './airalo_orders.service';
 import { UserLogged } from '../auth/decorators/user.decorator';
 import { LoggedUserInfoDto } from '../auth/dtos/logged-user-info.dto';

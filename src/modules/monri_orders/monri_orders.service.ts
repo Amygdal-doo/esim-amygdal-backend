@@ -32,29 +32,29 @@ export class MonriOrdersService {
     });
   }
 
-  async create(
-    loggedUser: LoggedUserInfoDto,
-    initializePaymentDto: InitializePaymentDto,
-  ) {
-    const { packages, quantity, currency } = initializePaymentDto;
-    const amount = (packages.price * quantity).toFixed(2);
+  // async create(
+  //   loggedUser: LoggedUserInfoDto,
+  //   initializePaymentDto: InitializePaymentDto,
+  // ) {
+  //   const { packages,, currency } = initializePaymentDto;
+  //   const amount = (packages.price * quantity).toFixed(2);
 
-    const data: Prisma.MonriOrderCreateInput = {
-      user: { connect: { id: loggedUser.id } },
-      packageId: packages.id,
-      amount,
-      status: OrderStatus.PENDING,
-      transaction: {
-        create: {
-          user: { connect: { id: loggedUser.id } },
-          amount,
-          status: OrderStatus.PENDING,
-        },
-      },
-      quantity,
-      currency,
-      paymentId: null,
-    };
-    return this.orderModel.create({ data });
-  }
+  //   const data: Prisma.MonriOrderCreateInput = {
+  //     user: { connect: { id: loggedUser.id } },
+  //     packageId: packages.id,
+  //     amount,
+  //     status: OrderStatus.PENDING,
+  //     transaction: {
+  //       create: {
+  //         user: { connect: { id: loggedUser.id } },
+  //         amount,
+  //         status: OrderStatus.PENDING,
+  //       },
+  //     },
+  //     quantity,
+  //     currency,
+  //     paymentId: null,
+  //   };
+  //   return this.orderModel.create({ data });
+  // }
 }

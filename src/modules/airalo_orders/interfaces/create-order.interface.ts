@@ -9,5 +9,5 @@ export interface ICreateOrder extends Prisma.AiraloOrderCreateInput {
   esim?: Prisma.EsimCreateNestedManyWithoutOrderInput;
   user: Prisma.UserCreateNestedOneWithoutAiralOrdersInput;
   status: OrderStatus;
-  transaction: Prisma.TransactionCreateNestedOneWithoutAiraloOrderInput;
+  transaction: Prisma.WalletTransactionCreateNestedOneWithoutAiraloOrderInput;
 }
