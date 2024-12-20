@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDecimal, IsEnum } from 'class-validator';
-import { CurrencyEnum } from '../../enums/currency.enum';
+import { MonriCurrency } from '@prisma/client';
 
 export class InitializePaymentDto {
   // @ApiProperty({ description: 'Package data', type: PackageRequestDto })
@@ -16,9 +16,9 @@ export class InitializePaymentDto {
 
   @ApiProperty({
     description: 'Currency',
-    example: CurrencyEnum.USD,
-    enum: CurrencyEnum,
+    example: MonriCurrency.USD,
+    enum: MonriCurrency,
   })
-  @IsEnum(CurrencyEnum)
-  currency: CurrencyEnum;
+  @IsEnum(MonriCurrency)
+  currency: MonriCurrency;
 }

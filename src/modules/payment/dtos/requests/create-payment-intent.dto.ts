@@ -1,14 +1,12 @@
-import { IsNumber, IsString, IsNotEmpty, Min } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePaymentIntentDto {
   @ApiProperty({
     example: 1000,
-    description: 'The chosem bundle',
+    description: 'The chosen bundle',
   })
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(50)
+  @IsString()
   bundleId: string;
 
   @ApiProperty({
@@ -19,12 +17,12 @@ export class CreatePaymentIntentDto {
   @IsNotEmpty()
   currency: string;
 
-  @ApiProperty({
-    example: 'Buying 5$ credit bundle',
-    examples: ['Buying 5$ credit bundle', 'Buying 10$ credit bundle'],
-    description: 'A description of the payment',
-  })
-  @IsString()
-  @IsNotEmpty()
-  description: string;
+  // @ApiProperty({
+  //   example: 'Buying 5$ credit bundle',
+  //   examples: ['Buying 5$ credit bundle', 'Buying 10$ credit bundle'],
+  //   description: 'A description of the payment',
+  // })
+  // @IsString()
+  // @IsNotEmpty()
+  // description: string;
 }

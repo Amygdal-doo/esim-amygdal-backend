@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { OrderStatus, Prisma } from '@prisma/client';
+import { OrderStatus, Prisma, WalletTransactionType } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { LoggedUserInfoDto } from '../auth/dtos/logged-user-info.dto';
 import { InitializePaymentDto } from '../payment/dtos/requests/initialize-payment.dto';
@@ -32,29 +32,28 @@ export class MonriOrdersService {
     });
   }
 
-  // async create(
-  //   loggedUser: LoggedUserInfoDto,
-  //   initializePaymentDto: InitializePaymentDto,
-  // ) {
-  //   const { packages,, currency } = initializePaymentDto;
-  //   const amount = (packages.price * quantity).toFixed(2);
+  async create(
+    loggedUser: LoggedUserInfoDto,
+    initializePaymentDto: InitializePaymentDto,
+  ) {
+    const { price, currency } = initializePaymentDto;
 
-  //   const data: Prisma.MonriOrderCreateInput = {
-  //     user: { connect: { id: loggedUser.id } },
-  //     packageId: packages.id,
-  //     amount,
-  //     status: OrderStatus.PENDING,
-  //     transaction: {
-  //       create: {
-  //         user: { connect: { id: loggedUser.id } },
-  //         amount,
-  //         status: OrderStatus.PENDING,
-  //       },
-  //     },
-  //     quantity,
-  //     currency,
-  //     paymentId: null,
-  //   };
-  //   return this.orderModel.create({ data });
-  // }
+    const data: Prisma.MonriOrderCreateInput = {
+      user: { connect: { id: loggedUser.id } },
+      // packageId: packages.id,
+      amount: price,
+      status: OrderStatus.PENDING,
+      transaction: {
+        create: {
+          user: { connect: { id: loggedUser.id } },
+          amount: price,
+          status: OrderStatus.PENDING,
+          type: WalletTransactionType.CREDIT_PURCHASE,
+        },
+      },
+      currency,
+      paymentId: null,
+    };
+    return this.orderModel.create({ data });
+  }
 }

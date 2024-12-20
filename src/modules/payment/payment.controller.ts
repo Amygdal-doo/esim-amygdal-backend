@@ -19,7 +19,6 @@ import { LoggedUserInfoDto } from '../auth/dtos/logged-user-info.dto';
 import { HttpExceptionFilter } from 'src/common/exceptions/http-exception.filter';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
-import { InitializeTransactionResponseDto } from './dtos/response/initalize-tranasaction.response.dto';
 import { CreatePaymentIntentDto } from './dtos/requests/create-payment-intent.dto';
 import { IntentResponseDto } from './dtos/response/intent.reponse.dto';
 

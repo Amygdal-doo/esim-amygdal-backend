@@ -13,6 +13,7 @@ import { UserService } from '../user/services/user.service';
 import { CreatePaymentIntentDto } from './dtos/requests/create-payment-intent.dto';
 import axios from 'axios';
 import { BundleService } from '../bundle/bundle.service';
+import { InitializePaymentDto } from './dtos/requests/initialize-payment.dto';
 
 @Injectable()
 export class PaymentService {
@@ -197,9 +198,7 @@ export class PaymentService {
   // }
 
   digest(transactionData: IDigest) {
-    //DigestTransactionDataDto
-    const key = this.configService.get('MONRI_KEY');
-    return calculateDigest(key, transactionData);
+    return calculateDigest(transactionData);
   }
 
   async paymentIntent(
@@ -207,9 +206,23 @@ export class PaymentService {
     body: CreatePaymentIntentDto,
   ) {
     console.log('🚀 ~ PaymentService ~ paymentIntent ~ body:', body);
-    const monriUrl = `${this.configService.get('MONRI_URL')}/v2/payment_direct`;
-    const authToken = this.configService.get('MONRI_AUTHENTICITY_TOKEN'); // Replace with your Monri authenticity token
+    const fullpath = '/v2/payment/new';
+    const monriUrl = `${this.configService.get('MONRI_URL')}${fullpath}`;
+    const authenticityToken = this.configService.get(
+      'MONRI_AUTHENTICITY_TOKEN',
+    ); // Replace with your Monri authenticity token
+    const merchantKey = this.configService.get('MONRI_KEY'); // Replace with your Monri merchant key
     const url = this.configService.get('FRONTEND_URL'); //this.configService.get('FRONTEND_URL');
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+
+    console.log({
+      fullpath,
+      monriUrl,
+      authenticityToken,
+      merchantKey,
+      url,
+      timestamp,
+    });
 
     const creditBundle = await this.bundleService.findById(body.bundleId);
 
@@ -220,19 +233,59 @@ export class PaymentService {
 
     if (!creditBundle) throw new BadRequestException('Credit bundle not found');
 
+    const amountInCents = toCents(Number(creditBundle.price));
+    console.log({ amountInCents });
+
     const data = {
       transaction: {
-        amount: toCents(Number(creditBundle.price)), // Amount in the smallest currency unit (e.g., cents)
+        amount: amountInCents, // Amount in the smallest currency unit (e.g., cents)
         currency: creditBundle.currency,
-        order_info: body.description,
+        order_info: creditBundle.title,
       },
       success_url: `${url}/api/v1/payment/success`,
       cancel_url: `${url}/api/v1/payment/cancel`,
     };
     console.log(111, data);
 
+    const bodyString = JSON.stringify(data);
+    console.log('🚀 ~ PaymentService ~ bodyString:', bodyString);
+
+    const initializePaymentDto: InitializePaymentDto = {
+      price: amountInCents,
+      currency: creditBundle.currency,
+    };
+    console.log(
+      '🚀 ~ PaymentService ~ initializePaymentDto:',
+      initializePaymentDto,
+    );
+
+    const monriOrder = await this.monriOrdersService.create(
+      loggedUserInfoDto,
+      initializePaymentDto,
+    );
+    console.log('🚀 ~ PaymentService ~ monriOrder:', monriOrder);
+
+    const digestData: IDigest = {
+      order_number: monriOrder.id,
+      amount: amountInCents,
+      currency: monriOrder.currency,
+      fullpath: fullpath,
+      body: bodyString,
+      merchant_key: merchantKey,
+      timestamp: timestamp,
+    };
+    console.log('🚀 ~ PaymentService ~ digestData:', digestData);
+
+    const digest = this.digest(digestData);
+    console.log('🚀 ~ PaymentService ~ digest:', digest);
+    const authorizationHeader = `WP3-v2.1 ${authenticityToken} ${timestamp} ${digest}`;
+
+    console.log(
+      '🚀 ~ PaymentService ~ authorizationHeader:',
+      authorizationHeader,
+    );
     const headers = {
-      Authorization: `Bearer ${authToken}`,
+      Authorization: authorizationHeader,
       'Content-Type': 'application/json',
     };
     console.log(222, headers);
@@ -243,6 +296,10 @@ export class PaymentService {
 
       return { clientSecret: response.data.client_secret };
     } catch (error) {
+      console.log(error);
+
+      console.log(error.response?.data);
+
       throw new Error(
         `Failed to create payment intent: ${error.response?.data?.message || error.message}`,
       );
