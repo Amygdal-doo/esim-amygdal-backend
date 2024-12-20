@@ -21,6 +21,7 @@ import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { InitializeTransactionResponseDto } from './dtos/response/initalize-tranasaction.response.dto';
 import { CreatePaymentIntentDto } from './dtos/requests/create-payment-intent.dto';
+import { IntentResponseDto } from './dtos/response/intent.reponse.dto';
 
 @ApiTags('Payment')
 @Controller({ path: 'payment', version: '1' })
@@ -119,8 +120,8 @@ export class PaymentController {
   @ApiBearerAuth('Access Token')
   @UseFilters(new HttpExceptionFilter())
   @UseGuards(AccessTokenGuard)
-  @Serialize(InitializeTransactionResponseDto)
-  @ApiOkResponse({ type: InitializeTransactionResponseDto })
+  @Serialize(IntentResponseDto)
+  @ApiOkResponse({ type: IntentResponseDto })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @HttpCode(200)
   async createPaymentIntent(
