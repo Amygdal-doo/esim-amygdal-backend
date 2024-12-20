@@ -232,7 +232,7 @@ model ResetPasswordToken {
 
 model Wallet {
   id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  balance Decimal @db.Money
+  balance Int @default(0)
   // currencyId String?  @db.Uuid
   userId  String  @unique @db.Uuid
 
@@ -248,6 +248,7 @@ model Wallet {
 model WalletTransaction {
   id          String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   amount      Decimal               @db.Money //Float // Amount added or deducted
+  // should add credits
   description String? // Optional description
   type        WalletTransactionType // Enum for transaction types
   userId      String                @db.Uuid
