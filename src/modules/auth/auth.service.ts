@@ -446,7 +446,6 @@ export class AuthService {
     const hashedToken = hashToken(token);
     const tokenRecord =
       await this.resetPasswordTokenService.getuniqueToken(hashedToken);
-    console.log(tokenRecord);
 
     if (!tokenRecord || tokenRecord.expiresAt < new Date()) {
       throw new BadRequestException('Invalid or expired token');
