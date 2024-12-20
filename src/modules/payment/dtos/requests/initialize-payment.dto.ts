@@ -1,18 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsEnum, IsNumber, ValidateNested } from 'class-validator';
+import { IsDecimal, IsEnum } from 'class-validator';
 import { CurrencyEnum } from '../../enums/currency.enum';
-import { PackageRequestDto } from 'src/modules/airalo/dtos/requests/operator.request.dto';
 
 export class InitializePaymentDto {
-  @ApiProperty({ description: 'Package data', type: PackageRequestDto })
-  @ValidateNested()
-  @Type(() => PackageRequestDto)
-  packages: PackageRequestDto;
+  // @ApiProperty({ description: 'Package data', type: PackageRequestDto })
+  // @ValidateNested()
+  // @Type(() => PackageRequestDto)
+  // packages: PackageRequestDto;
 
-  @ApiProperty({ description: 'Quantity', example: 1 })
-  @IsNumber()
-  quantity: number;
+  @ApiProperty({ description: 'Quantity', example: '6.00' })
+  @IsDecimal({
+    decimal_digits: '0,2',
+  })
+  price: string;
 
   @ApiProperty({
     description: 'Currency',

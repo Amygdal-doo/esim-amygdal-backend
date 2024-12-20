@@ -43,5 +43,5 @@ export class CreateOrderRequestDto implements Prisma.AiraloOrderCreateInput {
   @IsNotEmpty()
   status: OrderStatus;
 
-  transaction: Prisma.TransactionCreateNestedOneWithoutAiraloOrderInput;
+  transaction: Prisma.WalletTransactionCreateNestedOneWithoutAiraloOrderInput;
 }

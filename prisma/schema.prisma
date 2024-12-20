@@ -26,6 +26,20 @@ enum OrderStatus {
   FAILED
 }
 
+enum WalletTransactionType {
+  CREDIT_PURCHASE // Adding credit via Webpay or another payment system
+  ORDER_DEDUCTION // Deducting credit for an order(AiraloOrder)
+  REFUND // Refunding a failed order or other reasons
+  MANUAL_ADJUSTMENT // Admin manually adjusts the wallet balance
+}
+
+enum MonriCurrency {
+  USD
+  EUR
+  BAM
+  HRK
+}
+
 model RefreshToken {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @unique @db.Uuid
@@ -38,29 +52,29 @@ model RefreshToken {
 }
 
 model User {
-  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstName      String        @db.VarChar(256)
-  lastName       String        @db.VarChar(256)
-  username       String        @unique(map: "user_username_unique") @db.VarChar(256)
-  email          String        @unique(map: "user_email_unique") @db.VarChar(256)
-    isEmailConfirmed       Boolean                 @default(false)
-  role           Role          @default(USER)
-  loginType      LoginType     @default(CREDENTIALS)
-  googleId       String?       @unique(map: "user_googleId_unique") @db.VarChar(100)
-  appleId        String?       @unique(map: "user_appleId_unique") @db.VarChar(100)
-  microsoftId    String?       @unique(map: "user_microsoftId_unique") @db.VarChar(100)
-  password       String?
-  refreshToken   RefreshToken?
-    resetPasswordToken     ResetPasswordToken?
-  airaloApiToken AiraloToken?
-  airalOrders    AiraloOrder[]
-  monriOrders    MonriOrder[]
-  transactions   Transaction[]
-  esim           Esim[]
-  profile        Profile?
-  wallet         Wallet?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstName          String              @db.VarChar(256)
+  lastName           String              @db.VarChar(256)
+  username           String              @unique(map: "user_username_unique") @db.VarChar(256)
+  email              String              @unique(map: "user_email_unique") @db.VarChar(256)
+  isEmailConfirmed   Boolean             @default(false)
+  role               Role                @default(USER)
+  loginType          LoginType           @default(CREDENTIALS)
+  googleId           String?             @unique(map: "user_googleId_unique") @db.VarChar(100)
+  appleId            String?             @unique(map: "user_appleId_unique") @db.VarChar(100)
+  microsoftId        String?             @unique(map: "user_microsoftId_unique") @db.VarChar(100)
+  password           String?
+  refreshToken       RefreshToken?
+  resetPasswordToken ResetPasswordToken?
+  airaloApiToken     AiraloToken?
+  airalOrders        AiraloOrder[]
+  monriOrders        MonriOrder[]
+  transactions       WalletTransaction[]
+  esim               Esim[]
+  profile            Profile?
+  wallet             Wallet?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 
   @@index([email], map: "email_Index")
   @@index([id], map: "id_Index")
@@ -96,17 +110,17 @@ model AiraloToken {
 model AiraloOrder {
   id             String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId         String      @db.Uuid
-  orderId        Int? // airalo orderId
+  orderId        Int? // airalo orderId  airalo api order
   code           String?
   orderCreatedAt String?
   quantity       Int
-  packageId      String // airalo package id
+  packageId      String // airalo package id  brand_7days_8gb
   transactionId  String      @unique @db.Uuid // Nullable, linked after successful payment
   status         OrderStatus
 
-  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  transaction WalletTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
   esim        Esim[]
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -121,13 +135,11 @@ model MonriOrder {
   amount        Decimal     @db.Money
   status        OrderStatus
   response      Json?
-  // code           String
-  quantity      Int
-  packageId     String // airalo package id
+  // packageId     String // airalo package id
   transactionId String      @unique @db.Uuid
 
-  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transaction WalletTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   orderCreatedAt DateTime?
   createdAt      DateTime  @default(now())
@@ -189,7 +201,7 @@ model Currency {
   name      String
   symbol    String?
   countries Country[]
-  wallet    Wallet[]
+  // wallet    Wallet[]
   // shippingMethods ShippingMethod[]
 
   @@index(fields: [code])
@@ -208,23 +220,24 @@ model Language {
 }
 
 model ResetPasswordToken {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   tokenHash String   @unique
   expiresAt DateTime
-  userId    String     @unique @db.Uuid
+  userId    String   @unique @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("ResetPasswordToken")
 }
-model Wallet {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  balance    Decimal @db.Money
-  currencyId String  @db.Uuid
-  userId     String  @unique @db.Uuid
 
-  user     User     @relation(fields: [userId], references: [id])
-  currency Currency @relation(fields: [currencyId], references: [id])
+model Wallet {
+  id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  balance Int @default(0)
+  // currencyId String?  @db.Uuid
+  userId  String  @unique @db.Uuid
+
+  user User @relation(fields: [userId], references: [id])
+  // currency Currency? @relation(fields: [currencyId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -232,13 +245,14 @@ model Wallet {
   @@index(fields: [userId])
 }
 
-model Transaction {
-  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  amount      Decimal      @db.Money //Float // Amount added or deducted
+model WalletTransaction {
+  id          String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  amount      Decimal               @db.Money //Float // Amount added or deducted
+  // should add credits
   description String? // Optional description
-  // type          TransactionType // CREDIT or DEBIT
-  userId      String       @db.Uuid
-  user        User         @relation(fields: [userId], references: [id])
+  type        WalletTransactionType // Enum for transaction types
+  userId      String                @db.Uuid
+  user        User                  @relation(fields: [userId], references: [id])
   status      OrderStatus
   monriOrder  MonriOrder?
   airaloOrder AiraloOrder?
@@ -247,4 +261,18 @@ model Transaction {
   updatedAt DateTime @updatedAt
 
   @@index(fields: [userId])
+}
+
+model CreditBundle {
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  price     Decimal       @db.Money // Price in USD
+  currency  MonriCurrency
+  credits   Int // Credits offered in this bundle
+  isActive  Boolean       @default(true) // Toggle to activate/deactivate the bundle
+  title     String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index(fields: [id, isActive])
+  @@index(fields: [title])
 }

@@ -15,6 +15,9 @@ import { CountryModule } from './modules/country/country.module';
 import { SendgridModule } from './modules/sendgrid/sendgrid.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { MonriOrdersModule } from './modules/monri_orders/monri_orders.module';
+import { WalletModule } from './modules/wallet/wallet.module';
+import { WalletTransactionModule } from './modules/wallet-transaction/wallet-transaction.module';
+import { BundleModule } from './modules/bundle/bundle.module';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { MonriOrdersModule } from './modules/monri_orders/monri_orders.module';
     SendgridModule,
     PaymentModule,
     MonriOrdersModule,
+    WalletModule,
+    WalletTransactionModule,
+    BundleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

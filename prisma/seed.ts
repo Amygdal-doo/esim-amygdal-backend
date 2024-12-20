@@ -1,4 +1,4 @@
-import { LoginType, PrismaClient, Role } from '@prisma/client';
+import { LoginType, MonriCurrency, PrismaClient, Role } from '@prisma/client';
 
 import { mergedCountries } from './data/mergedCountries';
 
@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 const SUPER_ADMIN_EMAIL = 'super_admin@amygdal.com';
 const ADMIN_EMAIL = 'admin@amygdal.com';
 const USER_EMAIL = 'user@amygdal.com';
+const balance = 0;
 
 const DEV_PASSWORD =
   'ba7b868538a581f70906797bc1f213b1:0cb38a4e7a850f842ee959452dc5200e5b1b0e3ae82dd380d0f5ee47b70dc67a039282662875196c2ea822647220ccfb3185bb0dbae46f58137376708cc46633';
@@ -23,6 +24,16 @@ async function main() {
       password: DEV_PASSWORD,
       loginType: LoginType.CREDENTIALS,
       isEmailConfirmed: true,
+      profile: {
+        create: {
+          newsletter: false,
+        },
+      },
+      wallet: {
+        create: {
+          balance,
+        },
+      },
     },
   });
   console.log('User created with id: ', SUPER_ADMIN.id);
@@ -40,6 +51,16 @@ async function main() {
         'ba7b868538a581f70906797bc1f213b1:0cb38a4e7a850f842ee959452dc5200e5b1b0e3ae82dd380d0f5ee47b70dc67a039282662875196c2ea822647220ccfb3185bb0dbae46f58137376708cc46633',
       loginType: LoginType.CREDENTIALS,
       isEmailConfirmed: true,
+      profile: {
+        create: {
+          newsletter: false,
+        },
+      },
+      wallet: {
+        create: {
+          balance,
+        },
+      },
     },
   });
 
@@ -57,6 +78,16 @@ async function main() {
       password: DEV_PASSWORD,
       loginType: LoginType.CREDENTIALS,
       isEmailConfirmed: true,
+      profile: {
+        create: {
+          newsletter: false,
+        },
+      },
+      wallet: {
+        create: {
+          balance,
+        },
+      },
     },
   });
 
@@ -73,6 +104,16 @@ async function main() {
       password: DEV_PASSWORD,
       loginType: LoginType.CREDENTIALS,
       isEmailConfirmed: true,
+      profile: {
+        create: {
+          newsletter: false,
+        },
+      },
+      wallet: {
+        create: {
+          balance,
+        },
+      },
     },
   });
 
@@ -136,6 +177,53 @@ async function main() {
       },
     });
   }
+
+  const bundles = [
+    {
+      price: 5.0,
+      currency: MonriCurrency.USD,
+      credits: 50,
+      title: 'Starter Pack: 50 Credits',
+    },
+    {
+      price: 10.0,
+      currency: MonriCurrency.USD,
+      credits: 100,
+      title: 'Value Pack: 100 Credits',
+    },
+    {
+      price: 25.0,
+      currency: MonriCurrency.USD,
+      credits: 250,
+      title: 'Premium Pack: 250 Credits',
+    },
+    {
+      price: 50.0,
+      currency: MonriCurrency.USD,
+      credits: 500,
+      title: 'Pro Pack: 500 Credits',
+    },
+    {
+      price: 100.0,
+      currency: MonriCurrency.USD,
+      credits: 1000,
+      title: 'Ultimate Pack: 1000 Credits',
+    },
+  ];
+
+  for (const bundle of bundles) {
+    await prisma.creditBundle.create({
+      data: {
+        price: bundle.price,
+        currency: bundle.currency,
+        credits: bundle.credits,
+        isActive: true,
+        title: bundle.title,
+      },
+    });
+  }
+
+  console.log('Credit bundles seeded!');
 }
 main()
   .then(async () => {
