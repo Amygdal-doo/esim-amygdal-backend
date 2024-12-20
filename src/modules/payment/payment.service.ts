@@ -212,6 +212,12 @@ export class PaymentService {
     const url = this.configService.get('FRONTEND_URL'); //this.configService.get('FRONTEND_URL');
 
     const creditBundle = await this.bundleService.findById(body.bundleId);
+
+    console.log(
+      '🚀 ~ PaymentService ~ paymentIntent ~ creditBundle:',
+      creditBundle,
+    );
+
     if (!creditBundle) throw new BadRequestException('Credit bundle not found');
 
     const data = {
@@ -223,13 +229,18 @@ export class PaymentService {
       success_url: `${url}/api/v1/payment/success`,
       cancel_url: `${url}/api/v1/payment/cancel`,
     };
+    console.log(111, data);
 
     const headers = {
       Authorization: `Bearer ${authToken}`,
       'Content-Type': 'application/json',
     };
+    console.log(222, headers);
+
     try {
       const response = await axios.post(monriUrl, data, { headers });
+      console.log(333, response.data);
+
       return { clientSecret: response.data.client_secret };
     } catch (error) {
       throw new Error(
